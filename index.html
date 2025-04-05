@@ -1,0 +1,3143 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Paharpur Advance Recommendation System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/alpinejs@3.12.0/dist/cdn.min.js" defer></script>
+    <style>
+        body {
+            font-family: 'Poppins', sans-serif;
+        }
+        
+        .loading {
+            display: none;
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 1000;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 20px;
+            border-radius: 10px;
+        }
+        
+        .material-preview {
+            transform-style: preserve-3d;
+            transition: transform 0.5s;
+        }
+        
+        .material-preview:hover {
+            transform: rotate3d(1, 1, 0, 15deg);
+        }
+
+        .package-3d {
+            perspective: 1000px;
+            transition: all 0.3s;
+        }
+
+        .package-3d:hover {
+            transform: scale(1.05);
+        }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+
+        .pulse {
+            animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        
+        .material-layer {
+            height: 30px;
+            margin: 2px 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-size: 0.8rem;
+            font-weight: 500;
+        }
+        
+        .packaging-type-card {
+            transition: all 0.3s ease;
+            cursor: pointer;
+        }
+        
+        .packaging-type-card:hover {
+            transform: translateY(-5px);
+        }
+        
+        .tab-button {
+            transition: all 0.3s ease;
+        }
+        
+        .compare-table th, .compare-table td {
+            padding: 8px 12px;
+            text-align: left;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .compare-table th {
+            background-color: #f3f4f6;
+        }
+        
+        .packaging-preview {
+            transition: all 0.5s;
+            transform-style: preserve-3d;
+        }
+        
+        .packaging-preview:hover {
+            transform: rotateY(10deg);
+        }
+
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            overflow: auto;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .modal-content {
+            background-color: white;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 8px;
+            padding: 20px;
+            position: relative;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        
+        .close-modal {
+            position: absolute;
+            top: 15px;
+            right: 15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        .gemini-modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1001;
+            justify-content: center;
+            align-items: center;
+        }
+
+        .gemini-chat-container {
+            max-height: 400px;
+            overflow-y: auto;
+            border-radius: 8px;
+        }
+
+        .gemini-message {
+            margin-bottom: 12px;
+            padding: 8px 12px;
+            border-radius: 8px;
+            max-width: 85%;
+        }
+
+        .gemini-user {
+            background-color: #e2f1ff;
+            color: #0a558c;
+            margin-left: auto;
+        }
+
+        .gemini-assistant {
+            background-color: #f0f0f0;
+            color: #333;
+            margin-right: auto;
+        }
+
+        .typing-indicator {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .typing-indicator span {
+            display: inline-block;
+            width: 8px;
+            height: 8px;
+            margin: 0 2px;
+            border-radius: 50%;
+            background-color: #888;
+            animation: typing 1.5s infinite;
+        }
+
+        .typing-indicator span:nth-child(2) {
+            animation-delay: 0.2s;
+        }
+
+        .typing-indicator span:nth-child(3) {
+            animation-delay: 0.4s;
+        }
+
+        @keyframes typing {
+            0%, 60%, 100% { transform: translateY(0); }
+            30% { transform: translateY(-8px); }
+        }
+        
+        /* Pouch Generator Specific Styles */
+        .pouch-preview-container {
+            perspective: 1000px;
+        }
+        
+        .pouch-preview {
+            transform-style: preserve-3d;
+            transition: transform 0.8s;
+        }
+        
+        .pouch-preview:hover {
+            transform: rotateY(15deg) rotateX(5deg);
+        }
+        
+        .dimension-line {
+            position: absolute;
+            background-color: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+        }
+        
+        .dimension-label {
+            position: absolute;
+            background-color: rgba(255, 255, 255, 0.8);
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 12px;
+            font-weight: 600;
+            z-index: 10;
+        }
+
+        /* LOGIN/SIGNUP FORM */
+        .auth-form {
+            transition: all 0.3s ease;
+        }
+        
+        .auth-form input:focus {
+            border-color: #3b82f6;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25);
+        }
+        
+        /* Animated Background */
+        .animated-bg {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: -1;
+            opacity: 0.03;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .animated-bg::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='100' height='100' viewBox='0 0 100 100'%3E%3Cg fill-rule='evenodd'%3E%3Cg fill='%233B82F6' fill-opacity='0.05'%3E%3Cpath opacity='.5' d='M96 95h4v1h-4v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4h-9v4h-1v-4H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15v-9H0v-1h15V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h9V0h1v15h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9h4v1h-4v9zm-1 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm9-10v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-10 0v-9h-9v9h9zm-9-10h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9zm10 0h9v-9h-9v9z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E") repeat;
+            animation: moveBg 30s linear infinite;
+        }
+        
+        @keyframes moveBg {
+            0% { background-position: 0 0; }
+            100% { background-position: 100% 100%; }
+        }
+
+        .recommendation-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .recommendation-table th {
+            background-color: #f3f4f6;
+            padding: 12px;
+            text-align: left;
+            font-weight: 600;
+            border-bottom: 2px solid #e5e7eb;
+        }
+        
+        .recommendation-table td {
+            padding: 12px;
+            border-bottom: 1px solid #e5e7eb;
+        }
+        
+        .recommendation-table tr:hover {
+            background-color: #f9fafb;
+        }
+    </style>
+</head>
+<body class="bg-gray-50" x-data="app()">
+    <div class="animated-bg"></div>
+    <div class="min-h-screen">
+        <!-- Auth Modal -->
+        <div id="authModal" class="modal" x-show="showAuthModal">
+            <div class="modal-content w-full max-w-md p-6">
+                <span class="close-modal" @click="showAuthModal = false">&times;</span>
+                <div x-show="authMode === 'login'" class="auth-form">
+                    <h2 class="text-2xl font-bold mb-6 text-blue-700">Login</h2>
+                    <form @submit.prevent="handleLogin">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2" for="loginEmail">Email</label>
+                            <input type="email" id="loginEmail" x-model="loginEmail" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2" for="loginPassword">Password</label>
+                            <input type="password" id="loginPassword" x-model="loginPassword" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition">
+                                Login
+                            </button>
+                        </div>
+                    </form>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600">
+                            Don't have an account? 
+                            <button @click="authMode = 'signup'" class="text-blue-600 font-medium hover:underline">Sign up</button>
+                        </p>
+                    </div>
+                </div>
+                
+                <div x-show="authMode === 'signup'" class="auth-form">
+                    <h2 class="text-2xl font-bold mb-6 text-blue-700">Create an Account</h2>
+                    <form @submit.prevent="handleSignup">
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2" for="signupName">Full Name</label>
+                            <input type="text" id="signupName" x-model="signupName" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2" for="signupEmail">Email</label>
+                            <input type="email" id="signupEmail" x-model="signupEmail" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2" for="signupPassword">Password</label>
+                            <input type="password" id="signupPassword" x-model="signupPassword" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required minlength="8">
+                        </div>
+                        <div class="mb-4">
+                            <label class="block text-sm font-medium mb-2" for="signupConfirmPassword">Confirm Password</label>
+                            <input type="password" id="signupConfirmPassword" x-model="signupConfirmPassword" class="w-full p-3 border rounded focus:outline-none focus:ring-2 focus:ring-blue-500" required>
+                        </div>
+                        <div class="mb-4">
+                            <button type="submit" class="w-full bg-blue-600 text-white py-3 px-4 rounded-lg hover:bg-blue-700 transition">
+                                Sign Up
+                            </button>
+                        </div>
+                    </form>
+                    <div class="text-center">
+                        <p class="text-sm text-gray-600">
+                            Already have an account? 
+                            <button @click="authMode = 'login'" class="text-blue-600 font-medium hover:underline">Login</button>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Navigation Bar -->
+        <nav class="bg-blue-800 text-white p-4 shadow-lg sticky top-0 z-50">
+            <div class="container mx-auto flex flex-wrap justify-between items-center">
+                <div class="flex items-center">
+                    <i class="bi bi-box-seam text-3xl mr-3"></i>
+                    <h1 class="text-2xl font-bold">Paharpur Advance Recommendation System</h1>
+                </div>
+                <div class="flex flex-wrap space-x-2 md:space-x-4 mt-2 md:mt-0">
+                    <button class="bg-blue-600 px-3 md:px-4 py-2 rounded hover:bg-blue-700 transition flex items-center text-sm md:text-base" id="newAnalysis">
+                        <i class="bi bi-plus-circle mr-1"></i> New Analysis
+                    </button>
+                    <button class="bg-green-600 px-3 md:px-4 py-2 rounded hover:bg-green-700 transition flex items-center text-sm md:text-base" id="sustainabilityBtn">
+                        <i class="bi bi-leaf mr-1"></i> Sustainability
+                    </button>
+                    <button class="bg-orange-600 px-3 md:px-4 py-2 rounded hover:bg-orange-700 transition flex items-center text-sm md:text-base" @click="openGeminiModal()">
+                        <i class="bi bi-robot mr-1"></i> AI Assistant
+                    </button>
+                    <button class="bg-pink-600 px-3 md:px-4 py-2 rounded hover:bg-pink-700 transition flex items-center text-sm md:text-base" @click="openPouchGeneratorModal()">
+                        <i class="bi bi-box mr-1"></i> Pouch Generator
+                    </button>
+                    <template x-if="!isLoggedIn">
+                        <button class="bg-purple-600 px-3 md:px-4 py-2 rounded hover:bg-purple-700 transition flex items-center text-sm md:text-base" @click="showAuthModal = true">
+                            <i class="bi bi-person-circle mr-1"></i> Login/Signup
+                        </button>
+                    </template>
+                    <template x-if="isLoggedIn">
+                        <div class="relative">
+                            <button class="bg-purple-600 px-3 md:px-4 py-2 rounded hover:bg-purple-700 transition flex items-center text-sm md:text-base" @click="showUserMenu = !showUserMenu">
+                                <i class="bi bi-person-circle mr-1"></i> <span x-text="user.name || 'User'"></span>
+                            </button>
+                            <div x-show="showUserMenu" @click.away="showUserMenu = false" class="absolute right-0 mt-2 w-48 bg-white rounded-lg shadow-lg py-1 z-50">
+                                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-100">My Profile</a>
+                                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-100">Saved Recommendations</a>
+                                <a href="#" class="block px-4 py-2 text-gray-800 hover:bg-blue-100">Settings</a>
+                                <hr class="my-1">
+                                <a href="#" @click.prevent="handleLogout" class="block px-4 py-2 text-red-600 hover:bg-red-100">Logout</a>
+                            </div>
+                        </div>
+                    </template>
+                </div>
+            </div>
+        </nav>
+
+        <!-- Main Content -->
+        <main class="container mx-auto p-4">
+            <!-- Packaging Type Selection -->
+            <div class="mb-6">
+                <h2 class="text-xl font-bold mb-4">Select Packaging Type</h2>
+                <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                    <div class="packaging-type-card bg-white p-4 rounded-lg shadow-md text-center active border-2 border-blue-500" data-type="pouches">
+                        <div class="mx-auto w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mb-2">
+                            <i class="bi bi-bag text-blue-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium">Pouches</h3>
+                    </div>
+                    <div class="packaging-type-card bg-white p-4 rounded-lg shadow-md text-center" data-type="laminates">
+                        <div class="mx-auto w-16 h-16 flex items-center justify-center bg-green-100 rounded-full mb-2">
+                            <i class="bi bi-layers text-green-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium">Laminates</h3>
+                    </div>
+                    <div class="packaging-type-card bg-white p-4 rounded-lg shadow-md text-center" data-type="shrinkSleeves">
+                        <div class="mx-auto w-16 h-16 flex items-center justify-center bg-purple-100 rounded-full mb-2">
+                            <i class="bi bi-box text-purple-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium">Shrink Sleeves</h3>
+                    </div>
+                    <div class="packaging-type-card bg-white p-4 rounded-lg shadow-md text-center" data-type="flexibleFilms">
+                        <div class="mx-auto w-16 h-16 flex items-center justify-center bg-yellow-100 rounded-full mb-2">
+                            <i class="bi bi-film text-yellow-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium">Flexible Films</h3>
+                    </div>
+                    <div class="packaging-type-card bg-white p-4 rounded-lg shadow-md text-center" data-type="standUpPouches">
+                        <div class="mx-auto w-16 h-16 flex items-center justify-center bg-red-100 rounded-full mb-2">
+                            <i class="bi bi-bag-fill text-red-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium">Stand-Up Pouches</h3>
+                    </div>
+                    <div class="packaging-type-card bg-white p-4 rounded-lg shadow-md text-center" data-type="lidding">
+                        <div class="mx-auto w-16 h-16 flex items-center justify-center bg-indigo-100 rounded-full mb-2">
+                            <i class="bi bi-disc text-indigo-600 text-2xl"></i>
+                        </div>
+                        <h3 class="font-medium">Lidding Films</h3>
+                    </div>
+                </div>
+            </div>
+
+            <div class="grid md:grid-cols-2 gap-6">
+                <!-- Input Form -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="bi bi-sliders mr-2 text-blue-600"></i>
+                        Package Requirements
+                    </h2>
+                    <form id="recommendationForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium">Product Category</label>
+                            <select id="productType" class="w-full p-2 border rounded focus:ring focus:ring-blue-200 focus:border-blue-500">
+                                <option value="fried_snacks">Fried Snacks</option>
+                                <option value="puffed_snacks">Puffed Snacks</option>
+                                <option value="baked_snacks">Baked Snacks</option>
+                                <option value="extruded_snacks">Extruded Snacks</option>
+                                <option value="healthy_snacks">Healthy Snacks</option>
+                                <option value="milk">Milk</option>
+                                <option value="cheese">Cheese</option>
+                                <option value="yogurt">Yogurt</option>
+                                <option value="butter">Butter</option>
+                                <option value="cream">Cream</option>
+                                <option value="fresh_meat">Fresh Meat</option>
+                                <option value="frozen_meat">Frozen Meat</option>
+                                <option value="processed_meat">Processed Meat</option>
+                                <option value="fresh_seafood">Fresh Seafood</option>
+                                <option value="frozen_seafood">Frozen Seafood</option>
+                                <option value="frozen_vegetables">Frozen Vegetables</option>
+                                <option value="frozen_fruits">Frozen Fruits</option>
+                                <option value="frozen_ready_meals">Frozen Ready Meals</option>
+                                <option value="frozen_dairy">Frozen Dairy</option>
+                                <option value="frozen_desserts">Frozen Desserts</option>
+                                <option value="ground_coffee">Ground Coffee</option>
+                                <option value="whole_bean_coffee">Whole Bean Coffee</option>
+                                <option value="instant_coffee">Instant Coffee</option>
+                                <option value="tea_bags">Tea Bags</option>
+                                <option value="herbal_tea">Herbal Tea</option>
+                                <option value="hard_candies">Hard Candies</option>
+                                <option value="soft_candies">Soft Candies & Gummies</option>
+                                <option value="milk_chocolate">Milk Chocolate</option>
+                                <option value="dark_chocolate">Dark Chocolate</option>
+                                <option value="white_chocolate">White Chocolate</option>
+                                <option value="bread">Bread & Buns</option>
+                                <option value="cakes">Cakes & Pastries</option>
+                                <option value="cookies">Cookies & Crackers</option>
+                                <option value="granola">Granola & Muesli</option>
+                                <option value="cereal">Cornflakes & Cereals</option>
+                                <option value="pet_food">Pet Food</option>
+                                <option value="tablets">Tablets</option>
+                                <option value="capsules">Capsules</option>
+                                <option value="syrups">Syrups</option>
+                                <option value="lotions">Lotions</option>
+                                <option value="creams">Creams</option>
+                                <option value="shampoo">Shampoo</option>
+                                <option value="perfume">Perfume</option>
+                                <option value="detergent">Detergent</option>
+                                <option value="dishwashing_liquid">Dishwashing Liquid</option>
+                                <option value="beverages">Carbonated Drinks</option>
+                                <option value="juices">Juices</option>
+                                <option value="water">Bottled Water</option>
+                                <option value="alcoholic_beverages">Alcoholic Beverages</option>
+                                <option value="dairy_drinks">Dairy Drinks</option>
+                                <option value="ketchup">Ketchup</option>
+                                <option value="mayonnaise">Mayonnaise</option>
+                                <option value="hot_sauce">Hot Sauce</option>
+                            </select>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium">Shelf Life</label>
+                                <select id="shelfLife" class="w-full p-2 border rounded focus:ring focus:ring-blue-200 focus:border-blue-500">
+                                    <option value="short">Short (< 3 months)</option>
+                                    <option value="medium">Medium (3-6 months)</option>
+                                    <option value="long">Long (> 6 months)</option>
+                                    <option value="verylong">Very Long (> 12 months)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Barrier Level</label>
+                                <select id="barrierLevel" class="w-full p-2 border rounded focus:ring focus:ring-blue-200 focus:border-blue-500">
+                                    <option value="high">High</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="low">Low</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium">Cost Sensitivity</label>
+                                <select id="costSensitivity" class="w-full p-2 border rounded focus:ring focus:ring-blue-200 focus:border-blue-500">
+                                    <option value="low">Low (Premium)</option>
+                                    <option value="medium">Medium</option>
+                                    <option value="high">High (Economy)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Sustainability</label>
+                                <select id="sustainability" class="w-full p-2 border rounded focus:ring focus:ring-blue-200 focus:border-blue-500">
+                                    <option value="high">High Priority</option>
+                                    <option value="medium">Medium Priority</option>
+                                    <option value="low">Low Priority</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium">Storage Conditions</label>
+                                <select id="storageCondition" class="w-full p-2 border rounded focus:ring focus:ring-blue-200 focus:border-blue-500">
+                                    <option value="ambient">Ambient</option>
+                                    <option value="refrigerated">Refrigerated</option>
+                                    <option value="frozen">Frozen</option>
+                                    <option value="hot">Hot Fill</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Print Quality</label>
+                                <select id="printQuality" class="w-full p-2 border rounded focus:ring focus:ring-blue-200 focus:border-blue-500">
+                                    <option value="high">Premium</option>
+                                    <option value="medium">Standard</option>
+                                    <option value="low">Basic</option>
+                                </select>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label class="block text-sm font-medium">Layer Structure Preference</label>
+                            <select id="layerStructure" class="w-full p-2 border rounded focus:ring focus:ring-blue-200 focus:border-blue-500">
+                                <option value="all">Any Structure</option>
+                                <option value="2-layer">2-Layer</option>
+                                <option value="3-layer">3-Layer</option>
+                                <option value="4-layer">4-Layer</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium">Special Requirements</label>
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="resealable" class="mr-2">
+                                    <label for="resealable">Resealable</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="transparent" class="mr-2">
+                                    <label for="transparent">Transparency</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="punctureResistant" class="mr-2">
+                                    <label for="punctureResistant">Puncture Resistant</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="uvProtection" class="mr-2">
+                                    <label for="uvProtection">UV Protection</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="microwavable" class="mr-2">
+                                    <label for="microwavable">Microwavable</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="retortable" class="mr-2">
+                                    <label for="retortable">Retortable</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <button type="submit" class="w-full bg-blue-600 text-white py-3 rounded-lg hover:bg-blue-700 transition flex items-center justify-center">
+                            <i class="bi bi-search mr-2"></i> Get AI Recommendations
+                        </button>
+                    </form>
+                </div>
+
+                <!-- Results Section -->
+                <div class="bg-white p-6 rounded-lg shadow-lg">
+                    <h2 class="text-xl font-bold mb-4 flex items-center">
+                        <i class="bi bi-award mr-2 text-green-600"></i>
+                        Recommended Materials
+                    </h2>
+                    <div id="recommendations" class="space-y-4">
+                        <div class="p-8 text-center text-gray-500">
+                            <i class="bi bi-arrow-left-circle text-5xl mb-4 text-blue-300"></i>
+                            <p>Select your requirements on the left to get personalized material recommendations</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Package Visualization -->
+            <div class="mt-8 bg-white p-6 rounded-lg shadow-lg">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-bold flex items-center">
+                        <i class="bi bi-box3-fill mr-2 text-purple-600"></i>
+                        Package Visualization
+                    </h2>
+                    <div class="flex">
+                        <button id="view3DBtn" class="bg-purple-100 text-purple-700 px-4 py-2 rounded-lg mr-2 hover:bg-purple-200 transition">
+                            <i class="bi bi-badge-3d mr-1"></i> 3D View
+                        </button>
+                        <button id="viewTechBtn" class="bg-blue-100 text-blue-700 px-4 py-2 rounded-lg hover:bg-blue-200 transition">
+                            <i class="bi bi-layers mr-1"></i> Technical
+                        </button>
+                    </div>
+                </div>
+                <div class="grid md:grid-cols-3 gap-6" id="packagePreview">
+                    <div class="p-8 text-center text-gray-500 col-span-3">
+                        <i class="bi bi-box2 text-6xl mb-4 text-gray-300"></i>
+                        <p>Select a material recommendation to view package visualization</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sustainability Score -->
+            <div class="mt-8 bg-white p-6 rounded-lg shadow-lg">
+                <h2 class="text-xl font-bold mb-4 flex items-center">
+                    <i class="bi bi-leaf mr-2 text-green-600"></i>
+                    Sustainability Analysis
+                </h2>
+                <div id="sustainabilityAnalysis">
+                    <div class="p-8 text-center text-gray-500">
+                        <i class="bi bi-recycle text-6xl mb-4 text-gray-300"></i>
+                        <p>Select a material recommendation to view sustainability analysis</p>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Loading Indicator -->
+    <div id="loading" class="loading">
+        <div class="bg-white p-8 rounded-lg shadow-lg text-center">
+            <div class="animate-spin rounded-full h-16 w-16 border-b-4 border-blue-600 mx-auto"></div>
+            <p class="mt-4 text-lg text-blue-800">Processing your request...</p>
+            <p class="text-gray-500 mt-2">Analyzing packaging materials based on your requirements</p>
+        </div>
+    </div>
+
+    <!-- Sustainability Modal -->
+    <div id="sustainabilityModal" class="modal">
+        <div class="modal-content">
+            <span class="close-modal" id="closeSustainabilityModal">&times;</span>
+            <h2 class="text-2xl font-bold mb-6 text-green-700">Sustainability Calculator</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Input Parameters</h3>
+                    <form id="sustainabilityForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium">Packaging Material</label>
+                            <select id="ecoMaterial" class="w-full p-2 border rounded">
+                                <option value="petpe">PET/PE Laminate</option>
+                                <option value="evohpe">EVOH/PE Multilayer</option>
+                                <option value="metpet">MetPET/PE</option>
+                                <option value="paperpe">Paper/PE Laminate</option>
+                                <option value="bioplastic">PLA/PBAT Bioplastic</option>
+                                <option value="bopape">BOPA/PE Laminate</option>
+                                <option value="boppmet">BOPP/MET/PE Structure</option>
+                                <option value="aluminum">Aluminum/PE Laminate</option>
+                            </select>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium">Annual Production (tons)</label>
+                            <input type="number" id="annualProduction" class="w-full p-2 border rounded" value="100">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium">Transportation Distance (km)</label>
+                            <input type="number" id="transportDistance" class="w-full p-2 border rounded" value="500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium">End-of-Life Scenario</label>
+                            <select id="endOfLife" class="w-full p-2 border rounded">
+                                <option value="recycle">Recycling</option>
+                                <option value="landfill">Landfill</option>
+                                <option value="incineration">Incineration</option>
+                                <option value="compost">Composting</option>
+                            </select>
+                        </div>
+                        
+                        <button type="submit" class="w-full bg-green-600 text-white py-2 rounded hover:bg-green-700">
+                            Calculate Environmental Impact
+                        </button>
+                    </form>
+                </div>
+                
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Environmental Impact Results</h3>
+                    <div id="ecoResults" class="bg-gray-50 p-4 rounded">
+                        <div id="carbonFootprint" class="mb-6">
+                            <h4 class="font-medium mb-2">Carbon Footprint</h4>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-2xl font-bold">245</span>
+                                <span class="text-gray-600">tons CO2 eq./year</span>
+                                <span class="text-red-500 text-sm">+15% vs. industry avg.</span>
+                            </div>
+                            <div class="mt-2 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-red-500 rounded-full" style="width: 65%"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="waterUsage" class="mb-6">
+                            <h4 class="font-medium mb-2">Water Usage</h4>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-2xl font-bold">1,250</span>
+                                <span class="text-gray-600">kL/year</span>
+                                <span class="text-green-500 text-sm">-8% vs. industry avg.</span>
+                            </div>
+                            <div class="mt-2 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-blue-500 rounded-full" style="width: 45%"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="wasteGeneration" class="mb-6">
+                            <h4 class="font-medium mb-2">Waste Generation</h4>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-2xl font-bold">85</span>
+                                <span class="text-gray-600">tons/year</span>
+                                <span class="text-yellow-500 text-sm">+2% vs. industry avg.</span>
+                            </div>
+                            <div class="mt-2 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-yellow-500 rounded-full" style="width: 52%"></div>
+                            </div>
+                        </div>
+                        
+                        <div id="recyclingRate" class="mb-2">
+                            <h4 class="font-medium mb-2">Recyclability</h4>
+                            <div class="flex items-center space-x-3">
+                                <span class="text-2xl font-bold">35%</span>
+                                <span class="text-gray-600">recovery rate</span>
+                                <span class="text-red-500 text-sm">-25% vs. industry avg.</span>
+                            </div>
+                            <div class="mt-2 h-3 bg-gray-200 rounded-full overflow-hidden">
+                                <div class="h-full bg-green-500 rounded-full" style="width: 35%"></div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="mt-8">
+                <h3 class="text-lg font-semibold mb-3">Recommended Improvements</h3>
+                <div class="bg-green-50 p-4 rounded border border-green-200">
+                    <ul class="space-y-2">
+                        <li class="flex items-start">
+                            <i class="bi bi-check-circle-fill text-green-600 mr-2 text-lg"></i>
+                            <span>Consider switching to Paper/PE Laminate for 38% carbon footprint reduction</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="bi bi-check-circle-fill text-green-600 mr-2 text-lg"></i>
+                            <span>Optimize material thickness to reduce waste by up to 15%</span>
+                        </li>
+                        <li class="flex items-start">
+                            <i class="bi bi-check-circle-fill text-green-600 mr-2 text-lg"></i>
+                            <span>Partner with local recycling programs to improve recovery rates</span>
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Gemini AI Assistant Modal -->
+    <div id="geminiModal" class="gemini-modal" x-show="showGeminiModal">
+        <div class="modal-content w-11/12 max-w-4xl">
+            <span class="close-modal" @click="closeGeminiModal()">&times;</span>
+            <h2 class="text-2xl font-bold mb-4 text-blue-700">AI Packaging Assistant</h2>
+            
+            <div class="gemini-chat-container bg-white p-4 mb-4" id="geminiChatContainer">
+                <template x-for="(message, index) in geminiMessages" :key="index">
+                    <div :class="`gemini-message ${message.role === 'user' ? 'gemini-user' : 'gemini-assistant'}`">
+                        <p x-text="message.content"></p>
+                    </div>
+                </template>
+                <div x-show="isLoading" class="gemini-message gemini-assistant">
+                    <div class="typing-indicator">
+                        <span></span>
+                        <span></span>
+                        <span></span>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="flex mt-4">
+                <textarea 
+                    id="geminiInput" 
+                    x-model="geminiInput" 
+                    class="flex-1 p-3 border rounded-l-lg focus:outline-none focus:ring focus:border-blue-300" 
+                    placeholder="Ask about packaging materials, recommendations, or technical specifications..."
+                    rows="2"></textarea>
+                <button 
+                    @click="sendToGemini()" 
+                    :disabled="isLoading || geminiInput.trim() === ''" 
+                    :class="(isLoading || geminiInput.trim() === '') ? 'bg-blue-300' : 'bg-blue-600 hover:bg-blue-700'" 
+                    class="px-4 py-2 text-white rounded-r-lg transition">
+                    <i class="bi bi-send"></i>
+                </button>
+            </div>
+            
+            <div class="mt-4 text-sm text-gray-500">
+                <p>Suggested queries:</p>
+                <div class="flex flex-wrap gap-2 mt-1">
+                    <button @click="suggestedQuery('What is the best packaging material for coffee?')" class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-700">Coffee packaging</button>
+                    <button @click="suggestedQuery('Compare EVOH, PET, and BOPP for food packaging')" class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-700">Compare materials</button>
+                    <button @click="suggestedQuery('What makes a packaging material sustainable?')" class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-700">Sustainability factors</button>
+                    <button @click="suggestedQuery('Explain 3-layer vs 4-layer laminate structures')" class="bg-gray-100 hover:bg-gray-200 px-3 py-1 rounded-full text-gray-700">Laminate structures</button>
+                </div>
+
+                <div id="aiRecommendationResults" class="mt-6 overflow-x-auto hidden">
+                    <h3 class="font-medium mb-2 text-blue-700">AI Material Recommendations</h3>
+                    <table class="min-w-full border divide-y divide-gray-200">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Material</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Sustainability</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Durability</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Cost</th>
+                                <th class="px-4 py-2 text-left text-sm font-medium text-gray-700">Best For</th>
+                            </tr>
+                        </thead>
+                        <tbody class="bg-white divide-y divide-gray-200" id="aiMaterialsTableBody">
+                            <!-- Populated dynamically by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Pouch Generator Modal -->
+    <div id="pouchGeneratorModal" class="modal" x-show="showPouchGeneratorModal">
+        <div class="modal-content w-11/12 max-w-4xl">
+            <span class="close-modal" @click="closePouchGeneratorModal()">&times;</span>
+            <h2 class="text-2xl font-bold mb-4 text-pink-700">3D Pouch Generator</h2>
+            
+            <div class="grid md:grid-cols-2 gap-6">
+                <div>
+                    <h3 class="text-lg font-semibold mb-4">Pouch Specifications</h3>
+                    <form id="pouchGeneratorForm" class="space-y-4">
+                        <div>
+                            <label class="block text-sm font-medium">Pouch Type</label>
+                            <select id="pouchType" class="w-full p-2 border rounded" x-model="pouchType">
+                                <option value="standup">Stand-Up Pouch</option>
+                                <option value="pillow">Pillow Pouch</option>
+                                <option value="doypack">Doypack</option>
+                                <option value="sidegusset">Side Gusset</option>
+                                <option value="spout">Spout Pouch</option>
+                                <option value="zipper">Zipper Lock Pouch</option>
+                            </select>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium">Width (mm)</label>
+                                <input type="number" id="pouchWidth" class="w-full p-2 border rounded" value="150" x-model="pouchWidth">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Height (mm)</label>
+                                <input type="number" id="pouchHeight" class="w-full p-2 border rounded" value="200" x-model="pouchHeight">
+                            </div>
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div>
+                                <label class="block text-sm font-medium">Gusset/Depth (mm)</label>
+                                <input type="number" id="pouchDepth" class="w-full p-2 border rounded" value="80" x-model="pouchDepth">
+                            </div>
+                            <div>
+                                <label class="block text-sm font-medium">Material</label>
+                                <select id="pouchMaterial" class="w-full p-2 border rounded" x-model="pouchMaterial">
+                                    <option value="pet-pe">PET/PE</option>
+                                    <option value="metpet-pe">MetPET/PE</option>
+                                    <option value="paper-pe">Paper/PE</option>
+                                    <option value="al-pe">Aluminum/PE</option>
+                                    <option value="bopa-pe">BOPA/PE</option>
+                                    <option value="pla-pbat">PLA/PBAT</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-sm font-medium">Special Features</label>
+                            <div class="grid grid-cols-2 gap-2 mt-1">
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="zipperFeature" class="mr-2" x-model="zipperFeature">
+                                    <label for="zipperFeature">Zipper</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="tearNotchFeature" class="mr-2" x-model="tearNotchFeature">
+                                    <label for="tearNotchFeature">Tear Notch</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="euroSlotFeature" class="mr-2" x-model="euroSlotFeature">
+                                    <label for="euroSlotFeature">Euro Slot</label>
+                                </div>
+                                <div class="flex items-center">
+                                    <input type="checkbox" id="valveFeature" class="mr-2" x-model="valveFeature">
+                                    <label for="valveFeature">Degassing Valve</label>
+                                </div>
+                            </div>
+                        </div>
+                        
+                        <button type="button" class="w-full bg-pink-600 text-white py-2 rounded hover:bg-pink-700" @click="generatePouch()">
+                            Generate 3D Pouch
+                        </button>
+                    </form>
+                </div>
+                
+                <div class="pouch-preview-container">
+                    <h3 class="text-lg font-semibold mb-4">Preview</h3>
+                    <div id="pouchPreview" class="relative">
+                        <div class="flex items-center justify-center h-80 bg-gray-100 rounded-lg p-4">
+                            <div class="pouch-preview bg-white shadow-lg rounded-lg h-64 w-40 relative" 
+                                :style="`height: ${pouchHeight * 0.3}px; width: ${pouchWidth * 0.3}px;`">
+                                
+                                <!-- Front face with material texture -->
+                                <div class="absolute inset-0 rounded-lg" 
+                                    :class="{
+                                        'bg-gradient-to-b from-blue-100 to-blue-200': pouchMaterial === 'pet-pe',
+                                        'bg-gradient-to-b from-gray-200 to-gray-300': pouchMaterial === 'metpet-pe',
+                                        'bg-gradient-to-b from-yellow-50 to-yellow-100': pouchMaterial === 'paper-pe',
+                                        'bg-gradient-to-b from-gray-300 to-gray-400': pouchMaterial === 'al-pe',
+                                        'bg-gradient-to-b from-purple-100 to-purple-200': pouchMaterial === 'bopa-pe',
+                                        'bg-gradient-to-b from-green-100 to-green-200': pouchMaterial === 'pla-pbat'
+                                    }">
+                                </div>
+                                
+                                <!-- Gusset shadow (for stand-up pouches) -->
+                                <div x-show="pouchType === 'standup' || pouchType === 'doypack' || pouchType === 'spout'"
+                                    class="absolute bottom-0 left-1/2 transform -translate-x-1/2 bg-black bg-opacity-10 rounded-b-lg"
+                                    :style="`height: 20px; width: ${pouchDepth * 0.3}px;`">
+                                </div>
+                                
+                                <!-- Zipper if selected -->
+                                <div x-show="zipperFeature" 
+                                    class="absolute top-10 left-0 right-0 h-2 bg-white bg-opacity-30 border-b border-t border-gray-300">
+                                </div>
+                                
+                                <!-- Tear notch if selected -->
+                                <div x-show="tearNotchFeature"
+                                    class="absolute top-3 right-3 w-2 h-4 border-r border-t border-b border-gray-400 border-dashed rounded-r">
+                                </div>
+                                
+                                <!-- Euro slot if selected -->
+                                <div x-show="euroSlotFeature"
+                                    class="absolute top-2 left-1/2 transform -translate-x-1/2 w-4 h-8 bg-transparent border border-gray-400 rounded-full">
+                                </div>
+                                
+                                <!-- Valve if selected -->
+                                <div x-show="valveFeature"
+                                    class="absolute bottom-10 right-10 w-4 h-4 bg-white rounded-full border border-gray-400">
+                                    <div class="absolute inset-1 bg-gray-200 rounded-full"></div>
+                                </div>
+                                
+                                <!-- Dimension lines and labels -->
+                                <div class="absolute -left-16 top-1/2 transform -translate-y-1/2 text-xs font-semibold">
+                                    <div class="dimension-line h-px w-12 bg-black"></div>
+                                    <div class="dimension-label -ml-2 -mt-5" x-text="`H: ${pouchHeight} mm`"></div>
+                                </div>
+                                <div class="absolute left-1/2 -bottom-12 transform -translate-x-1/2 text-xs font-semibold">
+                                    <div class="dimension-line h-8 w-px bg-black"></div>
+                                    <div class="dimension-label -ml-12 mt-1" x-text="`W: ${pouchWidth} mm`"></div>
+                                </div>
+                                <div class="absolute -right-16 top-1/2 transform -translate-y-1/2 text-xs font-semibold" 
+                                    x-show="pouchType === 'standup' || pouchType === 'doypack' || pouchType === 'sidegusset'">
+                                    <div class="dimension-line h-px w-12 bg-black"></div>
+                                    <div class="dimension-label -mr-2 -mt-5" x-text="`D: ${pouchDepth} mm`"></div>
+                                </div>
+                                
+                                <!-- Volume indicator -->
+                                <div class="absolute -top-10 left-1/2 transform -translate-x-1/2 bg-blue-100 text-blue-800 px-2 py-1 rounded text-xs font-semibold">
+                                    <span x-text="`Vol: ~${calculateVolume()} ml`"></span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-4 bg-blue-50 p-4 rounded-lg">
+                        <h4 class="font-medium mb-2">Technical Specifications</h4>
+                        <ul class="text-sm space-y-1">
+                            <li class="flex justify-between">
+                                <span>Dimensions:</span>
+                                <span x-text="`${pouchWidth} × ${pouchHeight} × ${pouchDepth} mm`"></span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span>Material:</span>
+                                <span x-text="formatMaterial(pouchMaterial)"></span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span>Approx. Volume:</span>
+                                <span x-text="`${calculateVolume()} ml`"></span>
+                            </li>
+                            <li class="flex justify-between">
+                                <span>Features:</span>
+                                <span x-text="formatFeatures()"></span>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.4.1/papaparse.min.js"></script>
+    <script>
+        function app() {
+            return {
+                // Authentication variables
+                showAuthModal: false,
+                authMode: 'login',
+                loginEmail: '',
+                loginPassword: '',
+                signupName: '',
+                signupEmail: '',
+                signupPassword: '',
+                signupConfirmPassword: '',
+                isLoggedIn: false,
+                user: { name: '', email: '' },
+                showUserMenu: false,
+                
+                // Gemini integration
+                GEMINI_API_KEY: "AIzaSyAFBraIPt09nzRd6XhXPUOkoLCmgWBgTYo",
+                geminiMessages: [],
+                geminiInput: "",
+                isLoading: false,
+                showGeminiModal: false,
+                
+                // Pouch Generator Properties
+                showPouchGeneratorModal: false,
+                pouchType: "standup",
+                pouchWidth: 150,
+                pouchHeight: 200,
+                pouchDepth: 80,
+                pouchMaterial: "pet-pe",
+                zipperFeature: false,
+                tearNotchFeature: false,
+                euroSlotFeature: false,
+                valveFeature: false,
+                
+                async init() {
+                    // Check if user is logged in
+                    const userData = localStorage.getItem('user');
+                    if (userData) {
+                        try {
+                            this.user = JSON.parse(userData);
+                            this.isLoggedIn = true;
+                        } catch (e) {
+                            console.error("Error parsing user data:", e);
+                        }
+                    }
+                    
+                    // Initialize with a welcome message
+                    this.geminiMessages.push({
+                        role: "assistant",
+                        content: "Hello! I'm your AI Packaging Assistant. How can I help you today with packaging materials, recommendations, or technical specifications?"
+                    });
+                },
+                
+                handleLogin() {
+                    // Simulate login - in real app would check against server
+                    if (this.loginEmail && this.loginPassword) {
+                        this.isLoggedIn = true;
+                        this.user = {
+                            name: this.loginEmail.split('@')[0],
+                            email: this.loginEmail
+                        };
+                        localStorage.setItem('user', JSON.stringify(this.user));
+                        this.showAuthModal = false;
+                        
+                        // Reset form
+                        this.loginEmail = '';
+                        this.loginPassword = '';
+                    }
+                },
+                
+                handleSignup() {
+                    // Validate passwords match
+                    if (this.signupPassword !== this.signupConfirmPassword) {
+                        alert("Passwords don't match");
+                        return;
+                    }
+                    
+                    // Simulate signup - in real app would send to server
+                    if (this.signupName && this.signupEmail && this.signupPassword) {
+                        this.isLoggedIn = true;
+                        this.user = {
+                            name: this.signupName,
+                            email: this.signupEmail
+                        };
+                        localStorage.setItem('user', JSON.stringify(this.user));
+                        this.showAuthModal = false;
+                        
+                        // Reset form
+                        this.signupName = '';
+                        this.signupEmail = '';
+                        this.signupPassword = '';
+                        this.signupConfirmPassword = '';
+                    }
+                },
+                
+                handleLogout() {
+                    this.isLoggedIn = false;
+                    this.user = { name: '', email: '' };
+                    localStorage.removeItem('user');
+                    this.showUserMenu = false;
+                },
+                
+                openGeminiModal() {
+                    this.showGeminiModal = true;
+                    document.getElementById('geminiModal').style.display = 'flex';
+                    setTimeout(() => {
+                        const chatContainer = document.getElementById('geminiChatContainer');
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }, 100);
+                },
+                
+                closeGeminiModal() {
+                    this.showGeminiModal = false;
+                    document.getElementById('geminiModal').style.display = 'none';
+                },
+                
+                suggestedQuery(query) {
+                    this.geminiInput = query;
+                    this.sendToGemini();
+                },
+
+                openPouchGeneratorModal() {
+                    this.showPouchGeneratorModal = true;
+                    document.getElementById('pouchGeneratorModal').style.display = 'flex';
+                },
+                
+                closePouchGeneratorModal() {
+                    this.showPouchGeneratorModal = false;
+                    document.getElementById('pouchGeneratorModal').style.display = 'none';
+                },
+                
+                generatePouch() {
+                    // Already reactive with Alpine.js
+                    console.log("Pouch generated with specifications:", {
+                        type: this.pouchType,
+                        width: this.pouchWidth,
+                        height: this.pouchHeight,
+                        depth: this.pouchDepth,
+                        material: this.pouchMaterial,
+                        features: {
+                            zipper: this.zipperFeature,
+                            tearNotch: this.tearNotchFeature,
+                            euroSlot: this.euroSlotFeature,
+                            valve: this.valveFeature
+                        }
+                    });
+                },
+                
+                calculateVolume() {
+                    // Very basic volume calculation (simplified)
+                    let volume = 0;
+                    
+                    if (this.pouchType === 'pillow') {
+                        // Pillow pouch has roughly half the volume of its rectangular dimensions
+                        volume = this.pouchWidth * this.pouchHeight * 20 / 1000 * 0.5;
+                    } else if (this.pouchType === 'standup' || this.pouchType === 'doypack' || this.pouchType === 'spout') {
+                        // Stand-up pouches have more volume due to gusset
+                        volume = this.pouchWidth * this.pouchHeight * this.pouchDepth / 1000 * 0.7;
+                    } else {
+                        // Side gusset and others
+                        volume = this.pouchWidth * this.pouchHeight * this.pouchDepth / 1000 * 0.6;
+                    }
+                    
+                    return Math.round(volume);
+                },
+                
+                formatMaterial(material) {
+                    const materialMap = {
+                        'pet-pe': 'PET/PE Laminate',
+                        'metpet-pe': 'Metallized PET/PE',
+                        'paper-pe': 'Paper/PE Laminate',
+                        'al-pe': 'Aluminum/PE Laminate',
+                        'bopa-pe': 'BOPA/PE Laminate',
+                        'pla-pbat': 'PLA/PBAT Biodegradable'
+                    };
+                    
+                    return materialMap[material] || material;
+                },
+                
+                formatFeatures() {
+                    const features = [];
+                    
+                    if (this.zipperFeature) features.push('Zipper');
+                    if (this.tearNotchFeature) features.push('Tear Notch');
+                    if (this.euroSlotFeature) features.push('Euro Slot');
+                    if (this.valveFeature) features.push('Degassing Valve');
+                    
+                    return features.length ? features.join(', ') : 'None';
+                },
+                
+                async sendToGemini() {
+                    if (this.geminiInput.trim() === "" || this.isLoading) return;
+                    
+                    const userMessage = this.geminiInput.trim();
+                    this.geminiMessages.push({
+                        role: "user",
+                        content: userMessage
+                    });
+                    
+                    this.geminiInput = "";
+                    this.isLoading = true;
+                    
+                    setTimeout(() => {
+                        const chatContainer = document.getElementById('geminiChatContainer');
+                        chatContainer.scrollTop = chatContainer.scrollHeight;
+                    }, 100);
+                    
+                    try {
+                        // Hide any previous table results
+                        document.getElementById('aiRecommendationResults').classList.add('hidden');
+                        
+                        // Prepare the context for the AI
+                        const contextPrompt = `You are an expert packaging consultant specializing in flexible packaging materials, especially pouches, laminates, and films. Your expertise includes:
+                        
+                        1. Material properties (barrier, strength, sustainability)
+                        2. Industry-specific packaging requirements
+                        3. Technical aspects of packaging structures
+                        4. Cost-effectiveness analysis
+                        5. Sustainability considerations
+                        
+                        Only answer questions related to packaging materials, flexible packaging, pouches, laminates, films, barrier properties, sustainability of packaging, and related topics. Be specific, technical, and helpful.
+
+                        Respond to this query: ${userMessage}`;
+                        
+                        const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${this.GEMINI_API_KEY}`, {
+                            method: 'POST',
+                            headers: {
+                                'Content-Type': 'application/json'
+                            },
+                            body: JSON.stringify({
+                                contents: [{
+                                    parts: [{
+                                        text: contextPrompt
+                                    }]
+                                }],
+                                safetySettings: [
+                                    {
+                                        category: "HARM_CATEGORY_HATE_SPEECH",
+                                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                                    },
+                                    {
+                                        category: "HARM_CATEGORY_SEXUALLY_EXPLICIT",
+                                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                                    },
+                                    {
+                                        category: "HARM_CATEGORY_HARASSMENT",
+                                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                                    },
+                                    {
+                                        category: "HARM_CATEGORY_DANGEROUS_CONTENT",
+                                        threshold: "BLOCK_MEDIUM_AND_ABOVE"
+                                    }
+                                ],
+                                generationConfig: {
+                                    temperature: 0.7,
+                                    maxOutputTokens: 800
+                                }
+                            })
+                        });
+                        
+                        if (!response.ok) {
+                            throw new Error('Failed to get response from Gemini API');
+                        }
+                        
+                        const data = await response.json();
+                        let aiResponse = "";
+                        
+                        if (data.candidates && data.candidates.length > 0 && 
+                            data.candidates[0].content && 
+                            data.candidates[0].content.parts && 
+                            data.candidates[0].content.parts.length > 0) {
+                            aiResponse = data.candidates[0].content.parts[0].text;
+                        } else {
+                            aiResponse = "I'm sorry, I couldn't generate a response. Please try again with a different question.";
+                        }
+                        
+                        this.geminiMessages.push({
+                            role: "assistant",
+                            content: aiResponse
+                        });
+                        
+                        // Check if we need to display structured material recommendations
+                        if (userMessage.toLowerCase().includes('recommend') || 
+                            userMessage.toLowerCase().includes('suggest') || 
+                            userMessage.toLowerCase().includes('best material') ||
+                            userMessage.toLowerCase().includes('compare material')) {
+                            
+                            this.showRecommendationsTable(aiResponse);
+                        }
+                        
+                    } catch (error) {
+                        console.error("Error calling Gemini API:", error);
+                        this.geminiMessages.push({
+                            role: "assistant",
+                            content: "I'm sorry, I encountered an error processing your request. Please try again later."
+                        });
+                    } finally {
+                        this.isLoading = false;
+                        setTimeout(() => {
+                            const chatContainer = document.getElementById('geminiChatContainer');
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        }, 100);
+                    }
+                },
+                
+                showRecommendationsTable(aiResponse) {
+                    try {
+                        // Extract material names, properties from the response
+                        const materials = [];
+                        
+                        // Simple regex pattern matching to identify material recommendations
+                        const materialMatches = aiResponse.match(/([A-Za-z0-9\/\-]+(?:\s*\/\s*[A-Za-z0-9\-]+)*)\s*:\s*([^\.]+)/g) || [];
+                        
+                        for (const match of materialMatches) {
+                            const [name, description] = match.split(':').map(s => s.trim());
+                            
+                            // Skip if not actually a material name
+                            if (name.length > 30 || 
+                                name.toLowerCase().includes('note') || 
+                                name.toLowerCase().includes('conclusion') ||
+                                name.toLowerCase().includes('summary')) {
+                                continue;
+                            }
+                            
+                            const material = {
+                                name: name,
+                                description: description,
+                                sustainability: this.extractProperty(description, ['sustainability', 'eco-friendly', 'environmental']),
+                                durability: this.extractProperty(description, ['durability', 'strength', 'barrier']),
+                                cost: this.extractProperty(description, ['cost', 'price', 'economical']),
+                                bestFor: this.extractProperty(description, ['best for', 'ideal for', 'suitable for'])
+                            };
+                            
+                            materials.push(material);
+                        }
+                        
+                        if (materials.length > 0) {
+                            const tableBody = document.getElementById('aiMaterialsTableBody');
+                            tableBody.innerHTML = '';
+                            
+                            materials.forEach(material => {
+                                const row = document.createElement('tr');
+                                row.innerHTML = `
+                                    <td class="px-4 py-2">${material.name}</td>
+                                    <td class="px-4 py-2">${material.sustainability || 'N/A'}</td>
+                                    <td class="px-4 py-2">${material.durability || 'N/A'}</td>
+                                    <td class="px-4 py-2">${material.cost || 'N/A'}</td>
+                                    <td class="px-4 py-2">${material.bestFor || 'N/A'}</td>
+                                `;
+                                tableBody.appendChild(row);
+                            });
+                            
+                            document.getElementById('aiRecommendationResults').classList.remove('hidden');
+                        }
+                    } catch (error) {
+                        console.error("Error generating recommendations table:", error);
+                    }
+                },
+                
+                extractProperty(text, keywords) {
+                    for (const keyword of keywords) {
+                        const regex = new RegExp(`${keyword}[^,\.;]+`, 'i');
+                        const match = text.match(regex);
+                        if (match) {
+                            return match[0].replace(new RegExp(`^${keyword}`, 'i'), '').trim();
+                        }
+                    }
+                    return '';
+                }
+            };
+        }
+        
+        // Initialize variables to store our dataset and selected materials
+        let packagingData = [];
+        let selectedMaterials = [];
+        let activeMaterialIndex = 0;
+        let materialDatabase = [];
+
+        // Event Listeners
+        document.addEventListener('DOMContentLoaded', function() {
+            // Load packaging material data from the CSV file
+            loadPackagingData();
+            
+            // Form submission
+            document.getElementById('recommendationForm').addEventListener('submit', handleFormSubmit);
+            
+            // Sustainability button
+            document.getElementById('sustainabilityBtn').addEventListener('click', () => {
+                document.getElementById('sustainabilityModal').style.display = 'flex';
+            });
+            
+            // Close sustainability modal
+            document.getElementById('closeSustainabilityModal').addEventListener('click', () => {
+                document.getElementById('sustainabilityModal').style.display = 'none';
+            });
+            
+            // New analysis button
+            document.getElementById('newAnalysis').addEventListener('click', resetForm);
+            
+            // Packaging type selection
+            document.querySelectorAll('.packaging-type-card').forEach(card => {
+                card.addEventListener('click', function() {
+                    document.querySelectorAll('.packaging-type-card').forEach(c => {
+                        c.classList.remove('border-blue-500', 'border-2');
+                    });
+                    this.classList.add('border-blue-500', 'border-2');
+                });
+            });
+
+            // Sustainability form
+            document.getElementById('sustainabilityForm').addEventListener('submit', function(e) {
+                e.preventDefault();
+                calculateSustainability();
+            });
+            
+            // 3D view button
+            document.getElementById('view3DBtn').addEventListener('click', function() {
+                if (document.getElementById('recommendations').children.length > 1) {
+                    show3DView();
+                }
+            });
+            
+            // Technical view button
+            document.getElementById('viewTechBtn').addEventListener('click', function() {
+                if (document.getElementById('recommendations').children.length > 1) {
+                    showTechnicalView();
+                }
+            });
+            
+            // Monitor Enter key press in Gemini input
+            document.getElementById('geminiInput')?.addEventListener('keypress', function(e) {
+                if (e.key === 'Enter' && !e.shiftKey) {
+                    e.preventDefault();
+                    document.querySelector('[x-data="app()"]').__x.$data.sendToGemini();
+                }
+            });
+        });
+
+        async function loadPackagingData() {
+            try {
+                // Use Papa Parse to load and parse the CSV file
+                const csvUrl = 'https://db.zetaverse.one/storage/v1/object/public/app-uploads/spreadsheet-1743844587067/9qVU9vgW1AdSZJL4WNZ2fzKtFC72/ypz2w9zd.csv';
+                
+                // Fallback data in case the CSV fetch fails
+                materialDatabase = [
+                    {
+                        name: "PET/PE Laminate",
+                        barrier: "Medium",
+                        cost: "Medium",
+                        sustainability: "Medium",
+                        otr: "50-100",
+                        wvtr: "5-20",
+                        density: "1.35",
+                        thickness: "70-90",
+                        printQuality: "Good",
+                        recyclability: "Moderate",
+                        bestFor: "General purpose, beverages, sauces"
+                    },
+                    {
+                        name: "MetPET/PE",
+                        barrier: "High",
+                        cost: "Medium-High",
+                        sustainability: "Low",
+                        otr: "0.1-0.5",
+                        wvtr: "0.5-1",
+                        density: "1.4",
+                        thickness: "90-120",
+                        printQuality: "Excellent",
+                        recyclability: "Limited",
+                        bestFor: "Coffee, snacks, chips, nuts"
+                    },
+                    {
+                        name: "EVOH/PE Multilayer",
+                        barrier: "Very High",
+                        cost: "High",
+                        sustainability: "Medium",
+                        otr: "0.005-0.05",
+                        wvtr: "0.1-0.5",
+                        density: "1.05",
+                        thickness: "90-130",
+                        printQuality: "Good",
+                        recyclability: "Difficult",
+                        bestFor: "Meat, dairy, medical products"
+                    }
+                ];
+
+                Papa.parse(csvUrl, {
+                    download: true,
+                    header: true,
+                    complete: function(results) {
+                        packagingData = results.data;
+                        console.log("CSV Data loaded:", packagingData.length, "records");
+                        // Process the data here
+                        processPackagingData(packagingData);
+                    },
+                    error: function(error) {
+                        console.error("Error loading CSV:", error);
+                    }
+                });
+                
+            } catch (error) {
+                console.error("Error in loadPackagingData:", error);
+            }
+        }
+
+        function processPackagingData(data) {
+            // Filter out any incomplete records
+            const validData = data.filter(item => 
+                item.Category && 
+                item.Structure && 
+                item['Material Combination'] &&
+                item['Barrier Properties']
+            );
+            
+            if (validData.length > 0) {
+                materialDatabase = validData.map(item => ({
+                    name: item['Material Combination'],
+                    category: item.Category,
+                    structure: item.Structure,
+                    barrier: item['Barrier Properties'],
+                    sealability: item.Sealability,
+                    flexibility: item.Flexibility,
+                    recyclability: item.Recyclability,
+                    sustainability: item.Biodegradable === 'Yes' ? 'High' : (item.Recyclability === 'High' ? 'Medium' : 'Low'),
+                    printQuality: item.Printability,
+                    tearResistance: item['Tear Resistance'],
+                    heatResistance: item['Heat Resistance'],
+                    shelfLife: item['Shelf Life (Months)'],
+                    punctureResistance: item['Puncture Resistance'],
+                    opacity: item['Opacity (%)'],
+                    bestFor: item.Category,
+                    material1: item.Material_1,
+                    material2: item.Material_2,
+                    material3: item.Material_3,
+                    material4: item.Material_4
+                }));
+                
+                console.log("Processed material database:", materialDatabase.length, "records");
+            }
+        }
+
+        async function handleFormSubmit(e) {
+            e.preventDefault();
+            
+            // Show loading indicator
+            document.getElementById('loading').style.display = 'flex';
+            
+            // Gather form data
+            const formData = {
+                productType: document.getElementById('productType').value,
+                shelfLife: document.getElementById('shelfLife').value,
+                barrierLevel: document.getElementById('barrierLevel').value,
+                costSensitivity: document.getElementById('costSensitivity').value,
+                sustainability: document.getElementById('sustainability').value,
+                storageCondition: document.getElementById('storageCondition').value,
+                printQuality: document.getElementById('printQuality').value,
+                layerStructure: document.getElementById('layerStructure').value,
+                resealable: document.getElementById('resealable').checked,
+                transparent: document.getElementById('transparent').checked,
+                punctureResistant: document.getElementById('punctureResistant').checked,
+                uvProtection: document.getElementById('uvProtection').checked,
+                microwavable: document.getElementById('microwavable')?.checked || false,
+                retortable: document.getElementById('retortable')?.checked || false
+            };
+
+            try {
+                // Use AI to generate recommendations if we have enough materials in the database
+                if (materialDatabase.length > 10) {
+                    const recommendations = getDataBasedRecommendations(formData);
+                    displayRecommendations(recommendations);
+                    
+                    // Display package preview for first recommendation
+                    if (recommendations.length > 0) {
+                        displayPackagePreview(recommendations[0]);
+                        displaySustainabilityAnalysis(recommendations[0]);
+                    }
+                } else {
+                    // Use AI for recommendations when our database is limited
+                    const recommendations = await fetchAIRecommendations(formData);
+                    displayRecommendations(recommendations);
+                    
+                    if (recommendations.length > 0) {
+                        displayPackagePreview(recommendations[0]);
+                        displaySustainabilityAnalysis(recommendations[0]);
+                    }
+                }
+            } catch (error) {
+                console.error("Error fetching recommendations:", error);
+                // Generate and display local fallback recommendations
+                const recommendations = generateRecommendations(formData);
+                displayRecommendations(recommendations);
+                
+                if (recommendations.length > 0) {
+                    displayPackagePreview(recommendations[0]);
+                    displaySustainabilityAnalysis(recommendations[0]);
+                }
+            } finally {
+                // Hide loading indicator
+                document.getElementById('loading').style.display = 'none';
+            }
+        }
+
+        function getDataBasedRecommendations(formData) {
+            let filteredMaterials = [...materialDatabase];
+            
+            // Filter based on product category
+            const productTypeMapping = {
+                'fried_snacks': 'Fried Snacks',
+                'puffed_snacks': 'Puffed Snacks',
+                'baked_snacks': 'Baked Snacks',
+                'extruded_snacks': 'Extruded Snacks',
+                'healthy_snacks': 'Healthy Snacks',
+                'milk': 'Milk',
+                'cheese': 'Cheese',
+                'yogurt': 'Yogurt',
+                'butter': 'Butter',
+                'cream': 'Cream',
+                'fresh_meat': 'Fresh Meat',
+                'frozen_meat': 'Frozen Meat',
+                'processed_meat': 'Processed Meat',
+                'fresh_seafood': 'Fresh Seafood',
+                'frozen_seafood': 'Frozen Seafood',
+                'frozen_vegetables': 'Frozen Vegetables',
+                'frozen_fruits': 'Frozen Fruits',
+                'frozen_ready_meals': 'Frozen Ready Meals',
+                'frozen_dairy': 'Frozen Dairy (Ice Cream, Yogurt)',
+                'frozen_desserts': 'Frozen Desserts (Cakes, Pastries)',
+                'ground_coffee': 'Ground Coffee',
+                'whole_bean_coffee': 'Whole Bean Coffee',
+                'instant_coffee': 'Instant Coffee',
+                'tea_bags': 'Tea Bags',
+                'herbal_tea': 'Herbal Tea'
+            };
+            
+            const searchCategory = productTypeMapping[formData.productType] || formData.productType;
+            
+            // Filter by category if we can find a match, otherwise keep all
+            const categoryMatches = filteredMaterials.filter(mat => mat.category === searchCategory);
+            if (categoryMatches.length > 0) {
+                filteredMaterials = categoryMatches;
+            }
+            
+            // Filter by layer structure if specified
+            if (formData.layerStructure !== 'all') {
+                filteredMaterials = filteredMaterials.filter(mat => mat.structure === formData.layerStructure);
+            }
+            
+            // Filter by barrier level
+            if (formData.barrierLevel === 'high') {
+                filteredMaterials = filteredMaterials.filter(mat => 
+                    mat.barrier?.includes('High') || 
+                    mat.barrier?.includes('Maximum') || 
+                    mat.barrier?.includes('Strong') ||
+                    mat.barrier?.includes('Extreme'));
+            } else if (formData.barrierLevel === 'low') {
+                filteredMaterials = filteredMaterials.filter(mat => 
+                    mat.barrier?.includes('Low') || 
+                    mat.barrier?.includes('Basic'));
+            }
+            
+            // Filter by sustainability
+            if (formData.sustainability === 'high') {
+                const sustainableMaterials = filteredMaterials.filter(mat => 
+                    mat.biodegradable === 'Yes' || 
+                    mat.sustainability === 'High' || 
+                    mat.recyclability === 'High');
+                
+                if (sustainableMaterials.length > 0) {
+                    filteredMaterials = sustainableMaterials;
+                }
+            }
+            
+            // Filter special requirements if needed
+            if (formData.punctureResistant) {
+                const punctureResistantMaterials = filteredMaterials.filter(mat => 
+                    mat.punctureResistance === 'High' || 
+                    mat.punctureResistance === 'Very High' || 
+                    mat.punctureResistance === 'Extreme');
+                
+                if (punctureResistantMaterials.length > 0) {
+                    filteredMaterials = punctureResistantMaterials;
+                }
+            }
+            
+            if (formData.microwavable) {
+                const microwavableMaterials = filteredMaterials.filter(mat => 
+                    !mat.name.includes('Aluminum') && 
+                    !mat.name.includes('AluFoil') && 
+                    !mat.name.includes('Metal'));
+                
+                if (microwavableMaterials.length > 0) {
+                    filteredMaterials = microwavableMaterials;
+                }
+            }
+            
+            // Sort by relevance - higher barrier and suitable shelf life first
+            filteredMaterials.sort((a, b) => {
+                // Consider shelf life as a primary factor
+                const shelfLifeA = parseInt(a.shelfLife) || 0;
+                const shelfLifeB = parseInt(b.shelfLife) || 0;
+                
+                // If we want long shelf life, prioritize longer shelf life materials
+                if (formData.shelfLife === 'long' || formData.shelfLife === 'verylong') {
+                    if (shelfLifeB !== shelfLifeA) return shelfLifeB - shelfLifeA;
+                }
+                
+                // Consider structure complexity - more complex structures may offer better properties
+                const layersA = a.structure ? parseInt(a.structure.split('-')[0]) : 0;
+                const layersB = b.structure ? parseInt(b.structure.split('-')[0]) : 0;
+                
+                if (formData.costSensitivity === 'low') { // Premium
+                    return layersB - layersA; // Prefer more layers for premium
+                } else if (formData.costSensitivity === 'high') { // Economy
+                    return layersA - layersB; // Prefer fewer layers for economy
+                }
+                
+                // Default sorting
+                return shelfLifeB - shelfLifeA;
+            });
+            
+            // Prepare the results in our standard format
+            const results = filteredMaterials.slice(0, 5).map(material => {
+                // Prepare structure layers
+                const structureLayers = [];
+                
+                if (material.material1) {
+                    structureLayers.push({ 
+                        name: material.material1, 
+                        color: getLayerColor(material.material1), 
+                        thickness: getLayerThickness(material.material1) 
+                    });
+                }
+                
+                if (material.material2) {
+                    structureLayers.push({ 
+                        name: material.material2, 
+                        color: getLayerColor(material.material2), 
+                        thickness: getLayerThickness(material.material2)
+                    });
+                }
+                
+                if (material.material3 && material.material3 !== 'NA') {
+                    structureLayers.push({ 
+                        name: material.material3, 
+                        color: getLayerColor(material.material3), 
+                        thickness: getLayerThickness(material.material3)
+                    });
+                }
+                
+                if (material.material4 && material.material4 !== 'NA') {
+                    structureLayers.push({ 
+                        name: material.material4, 
+                        color: getLayerColor(material.material4), 
+                        thickness: getLayerThickness(material.material4)
+                    });
+                }
+                
+                // If no structure layers were created, create defaults based on the name
+                if (structureLayers.length === 0) {
+                    const parts = material.name.split('/');
+                    parts.forEach(part => {
+                        structureLayers.push({
+                            name: part.trim(),
+                            color: getLayerColor(part.trim()),
+                            thickness: getLayerThickness(part.trim())
+                        });
+                    });
+                }
+                
+                // Calculate sustainability score based on structure and properties
+                let sustainabilityScore = 50;
+                if (material.biodegradable === 'Yes') sustainabilityScore += 30;
+                if (material.recyclability === 'High') sustainabilityScore += 20;
+                if (material.recyclability === 'Medium') sustainabilityScore += 10;
+                
+                // Reduce score for aluminum, metallized, and complex structures
+                if (material.name.includes('Aluminum') || material.name.includes('Foil')) {
+                    sustainabilityScore -= 20;
+                }
+                if (material.name.includes('Met')) sustainabilityScore -= 10;
+                
+                // Calculate recyclability score based on properties
+                let recyclabilityScore = 40;
+                if (material.recyclability === 'High') recyclabilityScore = 70;
+                if (material.recyclability === 'Medium') recyclabilityScore = 50;
+                if (material.recyclability === 'Low') recyclabilityScore = 30;
+                
+                // Determine barrier level
+                let barrierLevel = 'Medium';
+                if (material.barrier?.includes('High') || material.barrier?.includes('Strong') || material.barrier?.includes('Maximum')) {
+                    barrierLevel = 'High';
+                } else if (material.barrier?.includes('Low') || material.barrier?.includes('Basic')) {
+                    barrierLevel = 'Low';
+                }
+                
+                // Return formatted material details
+                return {
+                    name: material.name,
+                    barrier: barrierLevel,
+                    cost: getCostValue(material.structure),
+                    sustainability: material.biodegradable === 'Yes' ? 'High' : (material.recyclability === 'High' ? 'Medium' : 'Low'),
+                    properties: {
+                        thickness: getThicknessRange(material.structure),
+                        punctureResistance: material.punctureResistance || 'Medium',
+                        otr: getOTRValue(barrierLevel),
+                        wvtr: getWVTRValue(barrierLevel),
+                        density: getDensityValue(material.material1),
+                        printQuality: material.printQuality || 'Good',
+                        recyclability: material.recyclability || 'Moderate'
+                    },
+                    structure: structureLayers,
+                    sustainabilityScore: Math.min(100, Math.max(0, sustainabilityScore)),
+                    recyclabilityScore: Math.min(100, Math.max(0, recyclabilityScore)),
+                    carbonFootprint: sustainabilityScore > 70 ? 'Low' : (sustainabilityScore > 40 ? 'Medium' : 'High'),
+                    bestFor: material.category
+                };
+            });
+            
+            return results;
+        }
+
+        // Helper functions for getDataBasedRecommendations
+        function getLayerColor(materialName) {
+            if (!materialName) return 'bg-gray-400';
+            
+            const materialColors = {
+                'PET': 'bg-blue-600',
+                'PE': 'bg-blue-300',
+                'PP': 'bg-blue-400',
+                'LDPE': 'bg-blue-200',
+                'HDPE': 'bg-blue-500',
+                'BOPP': 'bg-blue-400',
+                'BOPA': 'bg-purple-600',
+                'CPP': 'bg-blue-300',
+                'PA': 'bg-purple-500',
+                'PVDC': 'bg-red-500',
+                'OPA': 'bg-purple-600',
+                'EVOH': 'bg-red-500',
+                'Aluminum': 'bg-gray-500',
+                'AluFoil': 'bg-gray-500',
+                'MetPET': 'bg-gray-400',
+                'Paper': 'bg-yellow-100',
+                'PLA': 'bg-green-400',
+                'PBAT': 'bg-green-600',
+                'Tin': 'bg-gray-400',
+                'Steel': 'bg-gray-600',
+                'Glass': 'bg-blue-100'
+            };
+            
+            // Check if the materialName contains any of the keys in materialColors
+            for (const [key, color] of Object.entries(materialColors)) {
+                if (materialName.includes(key)) {
+                    return color;
+                }
+            }
+            
+            return 'bg-gray-400'; // Default color
+        }
+
+        function getLayerThickness(materialName) {
+            if (!materialName) return '10µm';
+            
+            const materialThicknesses = {
+                'PET': '12µm',
+                'PE': '50µm',
+                'PP': '30µm',
+                'LDPE': '40µm',
+                'HDPE': '45µm',
+                'BOPP': '20µm',
+                'BOPA': '15µm',
+                'CPP': '30µm',
+                'PA': '15µm',
+                'PVDC': '10µm',
+                'OPA': '15µm',
+                'EVOH': '10µm',
+                'Aluminum': '7µm',
+                'AluFoil': '7µm',
+                'MetPET': '12µm',
+                'Paper': '60µm',
+                'PLA': '30µm',
+                'PBAT': '50µm',
+                'Tin': '200µm',
+                'Steel': '200µm',
+                'Glass': '500µm'
+            };
+            
+            // Check if the materialName contains any of the keys
+            for (const [key, thickness] of Object.entries(materialThicknesses)) {
+                if (materialName.includes(key)) {
+                    return thickness;
+                }
+            }
+            
+            return '20µm'; // Default thickness
+        }
+
+        function getOTRValue(barrierLevel) {
+            switch(barrierLevel) {
+                case 'High': return '0.1-1.0';
+                case 'Medium': return '10-50';
+                case 'Low': return '100-500';
+                case 'Very High': return '<0.1';
+                default: return '10-50';
+            }
+        }
+
+        function getWVTRValue(barrierLevel) {
+            switch(barrierLevel) {
+                case 'High': return '0.5-2.0';
+                case 'Medium': return '5-15';
+                case 'Low': return '15-30';
+                case 'Very High': return '<0.5';
+                default: return '5-15';
+            }
+        }
+
+        function getDensityValue(materialName) {
+            if (!materialName) return '1.0';
+            
+            if (materialName.includes('PET')) return '1.4';
+            if (materialName.includes('PE')) return '0.92';
+            if (materialName.includes('PP')) return '0.9';
+            if (materialName.includes('BOPA') || materialName.includes('PA')) return '1.15';
+            if (materialName.includes('EVOH')) return '1.12';
+            if (materialName.includes('Aluminum')) return '2.7';
+            if (materialName.includes('Paper')) return '0.8';
+            if (materialName.includes('PLA')) return '1.25';
+            
+            return '1.0'; // Default density
+        }
+
+        function getThicknessRange(structure) {
+            if (!structure) return '70-100';
+            
+            const layerCount = parseInt(structure.split('-')[0]);
+            
+            switch(layerCount) {
+                case 2: return '70-90';
+                case 3: return '90-110';
+                case 4: return '110-140';
+                default: return '70-100';
+            }
+        }
+
+        function getCostValue(structure) {
+            if (!structure) return 'Medium';
+            
+            const layerCount = parseInt(structure.split('-')[0]);
+            
+            switch(layerCount) {
+                case 2: return 'Low';
+                case 3: return 'Medium';
+                case 4: return 'High';
+                default: return 'Medium';
+            }
+        }
+
+        async function fetchAIRecommendations(formData) {
+            try {
+                const GEMINI_API_KEY = "AIzaSyAFBraIPt09nzRd6XhXPUOkoLCmgWBgTYo";
+                
+                // Prepare form data to be sent to Gemini API for real-time analysis
+                const contextPrompt = `Act as an AI packaging expert. Provide structured packaging recommendations based on these requirements:
+                
+                - Product Type: ${formData.productType}
+                - Shelf Life: ${formData.shelfLife}
+                - Barrier Level: ${formData.barrierLevel}
+                - Cost Sensitivity: ${formData.costSensitivity}
+                - Sustainability Priority: ${formData.sustainability}
+                - Storage Condition: ${formData.storageCondition}
+                - Print Quality: ${formData.printQuality}
+                - Special Requirements: ${
+                    [
+                        formData.resealable ? 'Resealable' : '',
+                        formData.transparent ? 'Transparency' : '',
+                        formData.punctureResistant ? 'Puncture Resistant' : '',
+                        formData.uvProtection ? 'UV Protection' : '', 
+                        formData.microwavable ? 'Microwavable' : '',
+                        formData.retortable ? 'Retortable' : ''
+                    ].filter(Boolean).join(', ') || 'None'
+                }
+                
+                Provide 3-5 precise packaging material recommendations with this exact format and properties for each:
+                {
+                  "name": "Material name",
+                  "barrier": "High/Medium/Low",
+                  "cost": "High/Medium/Low",
+                  "sustainability": "High/Medium/Low",
+                  "properties": {
+                    "otr": "Oxygen transmission rate range",
+                    "wvtr": "Water vapor transmission rate range",
+                    "density": "Density value",
+                    "thickness": "Thickness range in µm",
+                    "printQuality": "Excellent/Good/Fair",
+                    "recyclability": "Good/Moderate/Limited"
+                  },
+                  "structure": [
+                    {"name": "Layer1", "color": "bg-blue-600", "thickness": "12µm"},
+                    {"name": "Layer2", "color": "bg-yellow-400", "thickness": "2µm"}
+                  ],
+                  "sustainabilityScore": 75,
+                  "recyclabilityScore": 70,
+                  "carbonFootprint": "Low/Medium/High",
+                  "bestFor": "Best applications"
+                }
+
+                Return your recommendations as an array of these structured objects. Only provide the structured data array, no explanations.`;
+
+                // Show loading for at least 1.5 seconds to make the process feel more significant
+                await new Promise(resolve => setTimeout(resolve, 1500));
+                
+                try {
+                    const response = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        },
+                        body: JSON.stringify({
+                            contents: [{
+                                parts: [{
+                                    text: contextPrompt
+                                }]
+                            }],
+                            generationConfig: {
+                                temperature: 0.4,
+                                maxOutputTokens: 1024
+                            }
+                        })
+                    });
+                    
+                    if (!response.ok) {
+                        throw new Error('Failed to get response from Gemini API');
+                    }
+                    
+                    const data = await response.json();
+                    let aiResponse = "";
+                    
+                    if (data.candidates && data.candidates.length > 0 && 
+                        data.candidates[0].content && 
+                        data.candidates[0].content.parts && 
+                        data.candidates[0].content.parts.length > 0) {
+                        aiResponse = data.candidates[0].content.parts[0].text;
+                    } else {
+                        throw new Error("Invalid Gemini API response");
+                    }
+                    
+                    // Try to extract JSON from the response
+                    try {
+                        // Find JSON array in the response
+                        const jsonMatch = aiResponse.match(/\[\s*\{[\s\S]*\}\s*\]/);
+                        
+                        if (jsonMatch) {
+                            const recommendations = JSON.parse(jsonMatch[0]);
+                            if (Array.isArray(recommendations) && recommendations.length > 0) {
+                                return recommendations;
+                            }
+                        }
+                        
+                        throw new Error("Could not parse recommendations from API response");
+                    } catch (parseError) {
+                        console.error("Error parsing Gemini response:", parseError);
+                        throw parseError;
+                    }
+                } catch (apiError) {
+                    console.error("Gemini API error:", apiError);
+                    // Fall back to locally generated recommendations
+                    return generateRecommendations(formData);
+                }
+                
+            } catch (error) {
+                console.error("Error in fetchAIRecommendations:", error);
+                // Return locally generated recommendations as fallback
+                return generateRecommendations(formData);
+            }
+        }
+
+        function generateRecommendations(formData) {
+            // This is a sample implementation - in a real system this would query a database
+            // or use an ML model to generate personalized recommendations
+            
+            // Generate different recommendations based on the form inputs
+            let recommendations = [];
+            
+            // Determine recommendations based on product type and other factors
+            if ((formData.productType === 'fried_snacks' || formData.productType === 'coffee' || formData.productType.includes('coffee')) && formData.barrierLevel === 'high') {
+                recommendations.push({
+                    name: 'MetPET/PE Laminate',
+                    barrier: 'High',
+                    cost: 'Medium-High',
+                    sustainability: 'Low',
+                    properties: {
+                        otr: '0.1-0.5',
+                        wvtr: '0.5-1',
+                        density: '1.4',
+                        thickness: '90-120',
+                        printQuality: 'Excellent',
+                        recyclability: 'Limited'
+                    },
+                    structure: [
+                        { name: 'PET', color: 'bg-blue-600', thickness: '12µm' },
+                        { name: 'Metallization', color: 'bg-gray-400', thickness: '<1µm' },
+                        { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                        { name: 'PE', color: 'bg-blue-300', thickness: '50µm' }
+                    ],
+                    sustainabilityScore: 35,
+                    recyclabilityScore: 30,
+                    carbonFootprint: 'High',
+                    bestFor: 'High-barrier, long shelf-life snacks and coffee'
+                });
+            }
+            
+            if (formData.productType.includes('coffee') && formData.shelfLife === 'verylong') {
+                recommendations.push({
+                    name: 'PET/AL/PE Structure',
+                    barrier: 'Very High',
+                    cost: 'High',
+                    sustainability: 'Low',
+                    properties: {
+                        otr: '<0.01',
+                        wvtr: '<0.01',
+                        density: '1.5',
+                        thickness: '100-120',
+                        printQuality: 'Excellent',
+                        recyclability: 'Difficult'
+                    },
+                    structure: [
+                        { name: 'PET', color: 'bg-blue-600', thickness: '12µm' },
+                        { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                        { name: 'Aluminum', color: 'bg-gray-500', thickness: '7µm' },
+                        { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                        { name: 'PE', color: 'bg-blue-300', thickness: '50µm' }
+                    ],
+                    sustainabilityScore: 25,
+                    recyclabilityScore: 20,
+                    carbonFootprint: 'Very High',
+                    bestFor: 'Maximum barrier for coffee beans and ground coffee'
+                });
+            }
+            
+            if ((formData.sustainability === 'high' || formData.sustainability === 'medium') && 
+                (formData.barrierLevel === 'low' || formData.barrierLevel === 'medium')) {
+                recommendations.push({
+                    name: 'Paper/PE Laminate',
+                    barrier: 'Medium',
+                    cost: 'Medium',
+                    sustainability: 'High',
+                    properties: {
+                        otr: '50-200',
+                        wvtr: '10-20',
+                        density: '0.9',
+                        thickness: '100-120',
+                        printQuality: 'Good',
+                        recyclability: 'Good'
+                    },
+                    structure: [
+                        { name: 'Paper', color: 'bg-yellow-100', thickness: '60µm' },
+                        { name: 'PE', color: 'bg-blue-300', thickness: '40µm' }
+                    ],
+                    sustainabilityScore: 75,
+                    recyclabilityScore: 70,
+                    carbonFootprint: 'Low',
+                    bestFor: 'Sustainable packaging for dry snacks and coffee'
+                });
+            }
+            
+            if ((formData.barrierLevel === 'high' && formData.shelfLife === 'long') || 
+                (formData.productType === 'meat' || formData.productType.includes('meat') || 
+                formData.productType === 'dairy' || formData.productType.includes('dairy'))) {
+                recommendations.push({
+                    name: 'EVOH/PE Multilayer',
+                    barrier: 'Very High',
+                    cost: 'High',
+                    sustainability: 'Medium',
+                    properties: {
+                        otr: '0.005-0.05',
+                        wvtr: '0.1-0.5',
+                        density: '1.05',
+                        thickness: '100-140',
+                        printQuality: 'Good',
+                        recyclability: 'Moderate'
+                    },
+                    structure: [
+                        { name: 'PET', color: 'bg-blue-600', thickness: '12µm' },
+                        { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                        { name: 'EVOH', color: 'bg-red-500', thickness: '10µm' },
+                        { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                        { name: 'PE', color: 'bg-blue-300', thickness: '76µm' }
+                    ],
+                    sustainabilityScore: 55,
+                    recyclabilityScore: 40,
+                    carbonFootprint: 'Medium',
+                    bestFor: 'Very high barrier applications, meat, dairy, medical'
+                });
+            }
+            
+            if (formData.productType.includes('frozen') || formData.storageCondition === 'frozen') {
+                recommendations.push({
+                    name: 'BOPA/PE Laminate',
+                    barrier: 'Medium-High',
+                    cost: 'Medium',
+                    sustainability: 'Medium',
+                    properties: {
+                        otr: '10-50',
+                        wvtr: '10-20',
+                        density: '1.13',
+                        thickness: '80-100',
+                        printQuality: 'Good',
+                        recyclability: 'Moderate'
+                    },
+                    structure: [
+                        { name: 'BOPA (Nylon)', color: 'bg-purple-600', thickness: '15µm' },
+                        { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                        { name: 'PE', color: 'bg-blue-300', thickness: '60µm' }
+                    ],
+                    sustainabilityScore: 50,
+                    recyclabilityScore: 45,
+                    carbonFootprint: 'Medium',
+                    bestFor: 'Frozen foods, products requiring puncture resistance'
+                });
+            }
+            
+            // Add more options based on cost and barrier needs
+            if (formData.costSensitivity === 'high' && formData.barrierLevel !== 'high') {
+                recommendations.push({
+                    name: 'PET/LDPE Structure',
+                    barrier: 'Medium',
+                    cost: 'Low',
+                    sustainability: 'Medium',
+                    properties: {
+                        otr: '50-100',
+                        wvtr: '5-20',
+                        density: '1.35',
+                        thickness: '70-90',
+                        printQuality: 'Good',
+                        recyclability: 'Good'
+                    },
+                    structure: [
+                        { name: 'PET', color: 'bg-blue-600', thickness: '12µm' },
+                        { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                        { name: 'LDPE', color: 'bg-blue-200', thickness: '60µm' }
+                    ],
+                    sustainabilityScore: 60,
+                    recyclabilityScore: 65,
+                    carbonFootprint: 'Medium',
+                    bestFor: 'Cost-effective packaging for shorter shelf-life products'
+                });
+            }
+            
+            // Add sustainable option
+            if (formData.sustainability === 'high') {
+                recommendations.push({
+                    name: 'PLA/PBAT Biodegradable Film',
+                    barrier: 'Low',
+                    cost: 'Medium-High',
+                    sustainability: 'Very High',
+                    properties: {
+                        otr: '500-1000',
+                        wvtr: '20-30',
+                        density: '1.25',
+                        thickness: '80-100',
+                        printQuality: 'Moderate',
+                        recyclability: 'Compostable'
+                    },
+                    structure: [
+                        { name: 'PLA', color: 'bg-green-400', thickness: '30µm' },
+                        { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                        { name: 'PBAT', color: 'bg-green-600', thickness: '50µm' }
+                    ],
+                    sustainabilityScore: 90,
+                    recyclabilityScore: 85,
+                    carbonFootprint: 'Very Low',
+                    bestFor: 'Eco-friendly packaging for dry, short shelf-life products'
+                });
+            }
+
+            // Option for microwavable applications
+            if (formData.microwavable) {
+                recommendations.push({
+                    name: 'BOPA/CPP Microwavable Structure',
+                    barrier: 'Medium',
+                    cost: 'Medium',
+                    sustainability: 'Medium',
+                    properties: {
+                        otr: '20-50',
+                        wvtr: '10-20',
+                        density: '1.1',
+                        thickness: '70-90',
+                        printQuality: 'Good',
+                        heatResistance: 'Microwave Safe',
+                        recyclability: 'Moderate'
+                    },
+                    structure: [
+                        { name: 'BOPA', color: 'bg-purple-600', thickness: '15µm' },
+                        { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                        { name: 'CPP', color: 'bg-blue-300', thickness: '70µm' }
+                    ],
+                    sustainabilityScore: 45,
+                    recyclabilityScore: 40,
+                    carbonFootprint: 'Medium',
+                    bestFor: 'Microwavable food applications, ready meals'
+                });
+            }
+            
+            // If no specific recommendations match, add generic ones
+            if (recommendations.length === 0) {
+                recommendations = [
+                    {
+                        name: 'BOPP/CPP Structure',
+                        barrier: 'Low-Medium',
+                        cost: 'Low',
+                        sustainability: 'Medium',
+                        properties: {
+                            otr: '1000-2000',
+                            wvtr: '5-10',
+                            density: '0.9',
+                            thickness: '50-70',
+                            printQuality: 'Good',
+                            recyclability: 'Moderate'
+                        },
+                        structure: [
+                            { name: 'BOPP', color: 'bg-blue-400', thickness: '20µm' },
+                            { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                            { name: 'CPP', color: 'bg-blue-300', thickness: '30µm' }
+                        ],
+                        sustainabilityScore: 50,
+                        recyclabilityScore: 55,
+                        carbonFootprint: 'Medium',
+                        bestFor: 'General purpose packaging for dry products'
+                    },
+                    {
+                        name: 'PET/Aluminum/PE',
+                        barrier: 'Very High',
+                        cost: 'High',
+                        sustainability: 'Low',
+                        properties: {
+                            otr: '<0.01',
+                            wvtr: '<0.01',
+                            density: '1.5',
+                            thickness: '100-120',
+                            printQuality: 'Excellent',
+                            recyclability: 'Difficult'
+                        },
+                        structure: [
+                            { name: 'PET', color: 'bg-blue-600', thickness: '12µm' },
+                            { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                            { name: 'Aluminum', color: 'bg-gray-500', thickness: '7µm' },
+                            { name: 'Adhesive', color: 'bg-yellow-400', thickness: '2µm' },
+                            { name: 'PE', color: 'bg-blue-300', thickness: '50µm' }
+                        ],
+                        sustainabilityScore: 25,
+                        recyclabilityScore: 20,
+                        carbonFootprint: 'Very High',
+                        bestFor: 'Maximum barrier for pharmaceuticals, coffee, sensitive products'
+                    }
+                ];
+            }
+            
+            return recommendations;
+        }
+
+        function displayRecommendations(recommendations) {
+            const container = document.getElementById('recommendations');
+            container.innerHTML = '';
+            selectedMaterials = recommendations;
+
+            recommendations.forEach((material, index) => {
+                const div = document.createElement('div');
+                div.className = 'bg-gradient-to-r from-gray-50 to-white p-5 rounded-lg shadow-sm hover:shadow-md transition material-preview border-l-4 ' + (index === 0 ? 'border-blue-500' : 'border-transparent');
+                div.dataset.index = index;
+                
+                // Generate sustainability badge based on score
+                let sustainabilityBadge = '';
+                if (material.sustainabilityScore >= 80) {
+                    sustainabilityBadge = '<span class="bg-green-100 text-green-800 text-xs font-semibold px-2.5 py-0.5 rounded ml-2"><i class="bi bi-leaf mr-1"></i>Eco-Friendly</span>';
+                } else if (material.sustainabilityScore >= 60) {
+                    sustainabilityBadge = '<span class="bg-blue-100 text-blue-800 text-xs font-semibold px-2.5 py-0.5 rounded ml-2"><i class="bi bi-shield-check mr-1"></i>Standard</span>';
+                } else {
+                    sustainabilityBadge = '<span class="bg-yellow-100 text-yellow-800 text-xs font-semibold px-2.5 py-0.5 rounded ml-2"><i class="bi bi-exclamation-triangle mr-1"></i>Review</span>';
+                }
+                
+                div.innerHTML = `
+                    <div class="flex justify-between items-start">
+                        <h3 class="font-bold text-lg flex items-center">${index + 1}. ${material.name}${sustainabilityBadge}</h3>
+                        <div class="flex space-x-2">
+                            <button class="bg-blue-100 text-blue-700 p-1 rounded hover:bg-blue-200 view-details-btn">
+                                <i class="bi bi-info-circle"></i>
+                            </button>
+                            <button class="bg-green-100 text-green-700 p-1 rounded hover:bg-green-200 save-btn" title="Save Recommendation">
+                                <i class="bi bi-bookmark"></i>
+                            </button>
+                        </div>
+                    </div>
+                    
+                    <div class="grid grid-cols-2 gap-3 mt-3 text-sm">
+                        <div class="flex items-center">
+                            <i class="bi bi-shield text-blue-600 mr-2"></i>
+                            <span class="text-gray-600">Barrier:</span>
+                            <span class="ml-1 font-medium">${material.barrier}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="bi bi-currency-dollar text-green-600 mr-2"></i>
+                            <span class="text-gray-600">Cost:</span>
+                            <span class="ml-1 font-medium">${material.cost}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="bi bi-recycle text-teal-600 mr-2"></i>
+                            <span class="text-gray-600">Sustainability:</span>
+                            <span class="ml-1 font-medium">${material.sustainability}</span>
+                        </div>
+                        <div class="flex items-center">
+                            <i class="bi bi-printer text-purple-600 mr-2"></i>
+                            <span class="text-gray-600">Printability:</span>
+                            <span class="ml-1 font-medium">${material.properties.printQuality}</span>
+                        </div>
+                    </div>
+                    
+                    <div class="mt-3 text-sm grid grid-cols-2 gap-x-4 gap-y-1">
+                        <div>OTR: <span class="font-medium">${material.properties.otr}</span> cc/m²/24 hr</div>
+                        <div>WVTR: <span class="font-medium">${material.properties.wvtr}</span> g/m²/24 hr</div>
+                        <div>Density: <span class="font-medium">${material.properties.density}</span> g/cm³</div>
+                        <div>Thickness: <span class="font-medium">${material.properties.thickness}</span> µm</div>
+                    </div>
+                    
+                    <div class="mt-3 pt-3 border-t border-gray-100">
+                        <span class="text-xs text-gray-500">Best For:</span>
+                        <p class="text-sm">${material.bestFor}</p>
+                    </div>
+                `;
+                
+                container.appendChild(div);
+                
+                // Add event listener to select this recommendation
+                div.addEventListener('click', function(e) {
+                    // Don't trigger if clicking the buttons
+                    if (e.target.closest('.view-details-btn') || e.target.closest('.save-btn')) {
+                        return;
+                    }
+                    const index = parseInt(this.dataset.index);
+                    selectMaterial(index);
+                });
+                
+                // Add event listener for save button
+                const saveBtn = div.querySelector('.save-btn');
+                saveBtn.addEventListener('click', function() {
+                    const appData = document.querySelector('[x-data="app()"]').__x.$data;
+                    if (appData.isLoggedIn) {
+                        alert('Recommendation saved successfully!');
+                        this.innerHTML = '<i class="bi bi-bookmark-fill"></i>';
+                    } else {
+                        appData.showAuthModal = true;
+                        alert('Please log in to save recommendations');
+                    }
+                });
+            });
+            
+            // Select first recommendation by default
+            activeMaterialIndex = 0;
+            highlightSelectedMaterial();
+        }
+
+        function selectMaterial(index) {
+            activeMaterialIndex = index;
+            highlightSelectedMaterial();
+            displayPackagePreview(selectedMaterials[index]);
+            displaySustainabilityAnalysis(selectedMaterials[index]);
+        }
+
+        function highlightSelectedMaterial() {
+            const items = document.querySelectorAll('#recommendations > div');
+            items.forEach((item, i) => {
+                if (i === activeMaterialIndex) {
+                    item.classList.add('border-blue-500');
+                    item.classList.remove('border-transparent');
+                } else {
+                    item.classList.remove('border-blue-500');
+                    item.classList.add('border-transparent');
+                }
+            });
+        }
+
+        function displayPackagePreview(material) {
+            const container = document.getElementById('packagePreview');
+            
+            // Determine colors based on the material type
+            let mainColor, accentColor;
+            if (material.name.includes('PET')) {
+                mainColor = 'from-blue-400 to-blue-500';
+                accentColor = 'blue';
+            } else if (material.name.includes('Paper')) {
+                mainColor = 'from-yellow-100 to-yellow-300';
+                accentColor = 'yellow';
+            } else if (material.name.includes('BOPA')) {
+                mainColor = 'from-purple-400 to-purple-500';
+                accentColor = 'purple';
+            } else if (material.name.includes('PLA')) {
+                mainColor = 'from-green-400 to-green-500';
+                accentColor = 'green';
+            } else if (material.name.includes('BOPP')) {
+                mainColor = 'from-blue-300 to-blue-400';
+                accentColor = 'blue';
+            } else if (material.name.includes('Aluminum') || material.name.includes('Foil')) {
+                mainColor = 'from-gray-300 to-gray-400';
+                accentColor = 'gray';
+            } else {
+                mainColor = 'from-indigo-400 to-indigo-500';
+                accentColor = 'indigo';
+            }
+            
+            container.innerHTML = `
+                <div class="package-3d bg-gradient-to-br from-${accentColor}-50 to-${accentColor}-100 p-6 rounded-lg text-center">
+                    <h3 class="font-bold mb-3 text-${accentColor}-800">Front View</h3>
+                    <div class="packaging-preview h-52 bg-gradient-to-r ${mainColor} rounded-lg shadow-lg flex items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-white opacity-20 flex flex-col items-center justify-center">
+                            <div class="w-3/4 h-1/3 border-2 border-white rounded-lg"></div>
+                        </div>
+                        <div class="z-10 text-white text-lg font-bold">Product</div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">Stand-up pouch with ${material.name}</p>
+                </div>
+                <div class="package-3d bg-gradient-to-br from-${accentColor}-50 to-${accentColor}-100 p-6 rounded-lg text-center">
+                    <h3 class="font-bold mb-3 text-${accentColor}-800">Side View</h3>
+                    <div class="packaging-preview h-52 bg-gradient-to-r ${mainColor} rounded-lg shadow-lg" style="width: 50%; margin: 0 auto;">
+                        <div class="h-full w-full flex items-center justify-center relative">
+                            <div class="absolute inset-0 opacity-10 bg-white"></div>
+                            <div class="z-10 text-white transform -rotate-90 text-sm font-bold">Product Side</div>
+                        </div>
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">Side profile with gusset bottom</p>
+                </div>
+                <div class="package-3d bg-gradient-to-br from-${accentColor}-50 to-${accentColor}-100 p-6 rounded-lg text-center">
+                    <h3 class="font-bold mb-3 text-${accentColor}-800">Material Structure</h3>
+                    <div class="h-52 flex flex-col justify-center space-y-1">
+                        ${material.structure.map(layer => 
+                            `<div class="material-layer ${layer.color} rounded" title="${layer.name}: ${layer.thickness}">${layer.name} (${layer.thickness})</div>`
+                        ).join('')}
+                    </div>
+                    <p class="mt-2 text-xs text-gray-500">Cross-section of ${material.name}</p>
+                </div>
+            `;
+        }
+
+        function displaySustainabilityAnalysis(material) {
+            const container = document.getElementById('sustainabilityAnalysis');
+            const sustainabilityScore = material.sustainabilityScore;
+            const recyclabilityScore = material.recyclabilityScore;
+            
+            // Determine sustainability level and recommendations
+            let sustainabilityLevel, sustainabilityColor, recommendations;
+            
+            if (sustainabilityScore >= 80) {
+                sustainabilityLevel = 'Excellent';
+                sustainabilityColor = 'bg-green-500';
+                recommendations = [
+                    'Current material is already highly sustainable',
+                    'Consider using water-based inks for printing',
+                    'Promote the recyclability through on-pack communications'
+                ];
+            } else if (sustainabilityScore >= 60) {
+                sustainabilityLevel = 'Good';
+                sustainabilityColor = 'bg-blue-500';
+                recommendations = [
+                    'Reduce structure thickness where possible',
+                    'Explore mono-material alternatives to improve recyclability',
+                    'Consider adding recycling instructions on packaging'
+                ];
+            } else if (sustainabilityScore >= 40) {
+                sustainabilityLevel = 'Moderate';
+                sustainabilityColor = 'bg-yellow-500';
+                recommendations = [
+                    'Consider replacing metallized layers with high-barrier coatings',
+                    'Explore PE/PE or PET/PET structures for better recyclability',
+                    'Optimize material usage to reduce overall environmental impact'
+                ];
+            } else {
+                sustainabilityLevel = 'Needs Improvement';
+                sustainabilityColor = 'bg-red-500';
+                recommendations = [
+                    'Replace aluminum layers with metalized films where barrier allows',
+                    'Consider paper-based alternatives for non-barrier applications',
+                    'Evaluate if barrier requirements can be reduced to enable more sustainable materials'
+                ];
+            }
+            
+            container.innerHTML = `
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                        <h3 class="font-medium text-lg mb-2">Sustainability Score</h3>
+                        <div class="flex items-center">
+                            <div class="w-16 h-16 rounded-full border-4 border-gray-100 flex items-center justify-center mr-3">
+                                <span class="text-xl font-bold">${sustainabilityScore}%</span>
+                            </div>
+                            <div>
+                                <span class="font-medium text-lg">${sustainabilityLevel}</span>
+                                <div class="h-2 bg-gray-200 rounded-full mt-2 w-48">
+                                    <div class="${sustainabilityColor} h-2 rounded-full" style="width: ${sustainabilityScore}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                        <h3 class="font-medium text-lg mb-2">Environmental Impact</h3>
+                        <div class="space-y-3">
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Carbon Footprint</span>
+                                    <span>${material.carbonFootprint}</span>
+                                </div>
+                                <div class="h-2 bg-gray-200 rounded-full">
+                                    <div class="${material.carbonFootprint === 'Very High' ? 'bg-red-500' : material.carbonFootprint === 'High' ? 'bg-orange-500' : material.carbonFootprint === 'Medium' ? 'bg-yellow-500' : 'bg-green-500'} h-2 rounded-full" 
+                                        style="width: ${material.carbonFootprint === 'Very High' ? '90%' : material.carbonFootprint === 'High' ? '70%' : material.carbonFootprint === 'Medium' ? '50%' : '30%'}"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Recyclability</span>
+                                    <span>${recyclabilityScore}%</span>
+                                </div>
+                                <div class="h-2 bg-gray-200 rounded-full">
+                                    <div class="bg-blue-500 h-2 rounded-full" style="width: ${recyclabilityScore}%"></div>
+                                </div>
+                            </div>
+                            
+                            <div>
+                                <div class="flex justify-between text-sm mb-1">
+                                    <span>Resource Efficiency</span>
+                                    <span>${Math.min(100, Math.max(20, 120 - parseInt(material.properties.thickness.split('-')[0])))}%</span>
+                                </div>
+                                <div class="h-2 bg-gray-200 rounded-full">
+                                    <div class="bg-teal-500 h-2 rounded-full" style="width: ${Math.min(100, Math.max(20, 120 - parseInt(material.properties.thickness.split('-')[0])))}%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white p-4 rounded-lg shadow-sm border border-gray-100">
+                        <h3 class="font-medium text-lg mb-2">Recommendations</h3>
+                        <ul class="text-sm space-y-2">
+                            ${recommendations.map(rec => `
+                                <li class="flex items-start">
+                                    <i class="bi bi-arrow-right-circle-fill text-green-600 mr-2 mt-0.5"></i>
+                                    <span>${rec}</span>
+                                </li>
+                            `).join('')}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function show3DView() {
+            const container = document.getElementById('packagePreview');
+            const material = selectedMaterials[activeMaterialIndex];
+            
+            // Determine colors based on the material type
+            let mainColor, textColor;
+            if (material.name.includes('PET')) {
+                mainColor = 'from-blue-400 to-blue-500';
+                textColor = 'text-blue-800';
+            } else if (material.name.includes('Paper')) {
+                mainColor = 'from-yellow-100 to-yellow-300';
+                textColor = 'text-yellow-800';
+            } else if (material.name.includes('BOPA')) {
+                mainColor = 'from-purple-400 to-purple-500';
+                textColor = 'text-purple-800';
+            } else if (material.name.includes('PLA')) {
+                mainColor = 'from-green-400 to-green-500';
+                textColor = 'text-green-800';
+            } else if (material.name.includes('BOPP')) {
+                mainColor = 'from-blue-300 to-blue-400';
+                textColor = 'text-blue-700';
+            } else if (material.name.includes('Aluminum') || material.name.includes('Foil')) {
+                mainColor = 'from-gray-300 to-gray-400';
+                textColor = 'text-gray-800';
+            } else {
+                mainColor = 'from-indigo-400 to-indigo-500';
+                textColor = 'text-indigo-800';
+            }
+            
+            container.innerHTML = `
+                <div class="col-span-2 packaging-preview bg-gradient-to-br from-gray-50 to-blue-50 p-8 rounded-lg shadow-lg">
+                    <h3 class="font-bold mb-4 text-xl text-center ${textColor}">3D Package Visualization</h3>
+                    <div class="h-64 bg-gradient-to-r ${mainColor} rounded-lg shadow-xl flex items-center justify-center relative overflow-hidden">
+                        <div class="absolute inset-0 bg-white opacity-10 flex flex-col items-center justify-center">
+                            <div class="w-3/4 h-1/2 border-2 border-white rounded-lg flex items-center justify-center">
+                                <div class="text-white text-2xl font-bold">PRODUCT</div>
+                            </div>
+                        </div>
+                        <div class="absolute bottom-3 right-3 bg-white bg-opacity-20 px-3 py-1 rounded text-white text-xs">
+                            ${material.name}
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold mb-3 text-center ${textColor}">Specifications</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Structure:</span>
+                            <span class="font-medium">${material.name}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Total Thickness:</span>
+                            <span class="font-medium">${material.properties.thickness} µm</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Barrier Level:</span>
+                            <span class="font-medium">${material.barrier}</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Sealing Temp:</span>
+                            <span class="font-medium">120-140°C</span>
+                        </div>
+                        <div class="flex justify-between">
+                            <span class="text-gray-600">Yield:</span>
+                            <span class="font-medium">${Math.round(1000000/(material.properties.density * parseInt(material.properties.thickness.split('-')[0])))} m²/kg</span>
+                        </div>
+                    </div>
+                    <div class="mt-3 pt-3 border-t border-gray-100">
+                        <h4 class="font-medium mb-1">Features</h4>
+                        <ul class="text-sm space-y-1">
+                            <li class="flex items-center">
+                                <i class="bi bi-check-circle-fill text-green-600 mr-2"></i>
+                                <span>Excellent printability</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="bi bi-check-circle-fill text-green-600 mr-2"></i>
+                                <span>High puncture resistance</span>
+                            </li>
+                            <li class="flex items-center">
+                                <i class="bi bi-check-circle-fill text-green-600 mr-2"></i>
+                                <span>Good machinability</span>
+                            </li>
+                            ${material.properties.heatResistance ? `
+                            <li class="flex items-center">
+                                <i class="bi bi-check-circle-fill text-green-600 mr-2"></i>
+                                <span>Heat resistance: ${material.properties.heatResistance}</span>
+                            </li>` : ''}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function showTechnicalView() {
+            const container = document.getElementById('packagePreview');
+            const material = selectedMaterials[activeMaterialIndex];
+            
+            const colorMap = {
+                'Very High': 'bg-green-600',
+                'High': 'bg-green-500',
+                'Medium': 'bg-yellow-500',
+                'Low': 'bg-red-500',
+                'Very Low': 'bg-red-600'
+            };
+            
+            container.innerHTML = `
+                <div class="col-span-3 bg-gradient-to-br from-gray-50 to-blue-50 p-6 rounded-lg shadow-lg">
+                    <h3 class="font-bold mb-4 text-xl text-center">Technical Specifications</h3>
+                    
+                    <div class="grid md:grid-cols-2 gap-6">
+                        <div>
+                            <h4 class="font-medium mb-3">Material Structure</h4>
+                            <div class="space-y-1">
+                                ${material.structure.map(layer => 
+                                    `<div class="flex justify-between p-2 border border-gray-100 rounded">
+                                        <span class="font-medium">${layer.name}</span>
+                                        <span>${layer.thickness}</span>
+                                    </div>`
+                                ).join('')}
+                                <div class="flex justify-between p-2 border border-gray-100 rounded bg-gray-50">
+                                    <span class="font-medium">Total Thickness</span>
+                                    <span>${material.properties.thickness} µm</span>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-medium mt-4 mb-3">Process Parameters</h4>
+                            <div class="space-y-1">
+                                <div class="flex justify-between p-2 border border-gray-100 rounded">
+                                    <span>Sealing Temperature</span>
+                                    <span>120-140°C</span>
+                                </div>
+                                <div class="flex justify-between p-2 border border-gray-100 rounded">
+                                    <span>Sealing Pressure</span>
+                                    <span>Medium-High</span>
+                                </div>
+                                <div class="flex justify-between p-2 border border-gray-100 rounded">
+                                    <span>Sealing Time</span>
+                                    <span>0.5-1.0s</span>
+                                </div>
+                                ${material.properties.heatResistance ? `
+                                <div class="flex justify-between p-2 border border-gray-100 rounded">
+                                    <span>Heat Resistance</span>
+                                    <span>${material.properties.heatResistance}</span>
+                                </div>` : ''}
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <h4 class="font-medium mb-3">Barrier Properties</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>Oxygen Transmission Rate</span>
+                                        <span>${material.properties.otr} cc/m²/24h</span>
+                                    </div>
+                                    <div class="h-2 bg-gray-200 rounded-full">
+                                        <div class="${colorMap[material.barrier] || 'bg-yellow-500'} h-2 rounded-full" style="width: ${
+                                            material.barrier === 'Very High' || material.barrier === 'Ultra High' ? '90%' : 
+                                            material.barrier === 'High' ? '75%' : 
+                                            material.barrier === 'Medium' ? '50%' : 
+                                            material.barrier === 'Low' ? '25%' : '10%'
+                                        }"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>Water Vapor Transmission Rate</span>
+                                        <span>${material.properties.wvtr} g/m²/24h</span>
+                                    </div>
+                                    <div class="h-2 bg-gray-200 rounded-full">
+                                        <div class="${colorMap[material.barrier] || 'bg-yellow-500'} h-2 rounded-full" style="width: ${
+                                            material.barrier === 'Very High' || material.barrier === 'Ultra High' ? '90%' : 
+                                            material.barrier === 'High' ? '75%' : 
+                                            material.barrier === 'Medium' ? '50%' : 
+                                            material.barrier === 'Low' ? '25%' : '10%'
+                                        }"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>Light Barrier</span>
+                                        <span>${
+                                            material.name.includes('Met') || material.name.includes('Aluminum') || material.name.includes('Foil') ? 'Excellent' :
+                                            material.name.includes('EVOH') ? 'Good' : 'Moderate'
+                                        }</span>
+                                    </div>
+                                    <div class="h-2 bg-gray-200 rounded-full">
+                                        <div class="${
+                                            material.name.includes('Met') || material.name.includes('Aluminum') || material.name.includes('Foil') ? 'bg-green-500' :
+                                            material.name.includes('EVOH') ? 'bg-yellow-500' : 'bg-orange-500'
+                                        } h-2 rounded-full" style="width: ${
+                                            material.name.includes('Met') || material.name.includes('Aluminum') || material.name.includes('Foil') ? '90%' :
+                                            material.name.includes('EVOH') ? '70%' : '50%'
+                                        }"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <h4 class="font-medium mt-4 mb-3">Mechanical Properties</h4>
+                            <div class="space-y-3">
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>Puncture Resistance</span>
+                                        <span>${
+                                            material.name.includes('PET') || material.name.includes('Nylon') || material.name.includes('BOPA') ? 'Excellent' :
+                                            material.name.includes('PE') ? 'Good' : 'Moderate'
+                                        }</span>
+                                    </div>
+                                    <div class="h-2 bg-gray-200 rounded-full">
+                                        <div class="${
+                                            material.name.includes('PET') || material.name.includes('Nylon') || material.name.includes('BOPA') ? 'bg-green-500' :
+                                            material.name.includes('PE') ? 'bg-yellow-500' : 'bg-orange-500'
+                                        } h-2 rounded-full" style="width: ${
+                                            material.name.includes('PET') || material.name.includes('Nylon') || material.name.includes('BOPA') ? '90%' :
+                                            material.name.includes('PE') ? '70%' : '50%'
+                                        }"></div>
+                                    </div>
+                                </div>
+                                
+                                <div>
+                                    <div class="flex justify-between mb-1">
+                                        <span>Tear Resistance</span>
+                                        <span>${
+                                            material.name.includes('PET') || material.name.includes('BOPP') ? 'Excellent' :
+                                            material.name.includes('PE') ? 'Good' : 'Moderate'
+                                        }</span>
+                                    </div>
+                                    <div class="h-2 bg-gray-200 rounded-full">
+                                        <div class="${
+                                            material.name.includes('PET') || material.name.includes('BOPP') ? 'bg-green-500' :
+                                            material.name.includes('PE') ? 'bg-yellow-500' : 'bg-orange-500'
+                                        } h-2 rounded-full" style="width: ${
+                                            material.name.includes('PET') || material.name.includes('BOPP') ? '90%' :
+                                            material.name.includes('PE') ? '70%' : '50%'
+                                        }"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function calculateSustainability() {
+            // Show loading indicator
+            document.getElementById('loading').style.display = 'flex';
+            
+            // Simulate API call delay
+            setTimeout(() => {
+                const material = document.getElementById('ecoMaterial').value;
+                const annualProduction = parseInt(document.getElementById('annualProduction').value);
+                const transportDistance = parseInt(document.getElementById('transportDistance').value);
+                const endOfLife = document.getElementById('endOfLife').value;
+                
+                let carbonScore, waterScore, wasteScore, recyclingScore;
+                
+                // Calculate carbon footprint based on material type
+                switch (material) {
+                    case 'petpe':
+                        carbonScore = Math.round(annualProduction * 2.5);
+                        waterScore = Math.round(annualProduction * 12);
+                        wasteScore = Math.round(annualProduction * 0.85);
+                        recyclingScore = 45;
+                        break;
+                    case 'evohpe':
+                        carbonScore = Math.round(annualProduction * 3.1);
+                        waterScore = Math.round(annualProduction * 14);
+                        wasteScore = Math.round(annualProduction * 0.9);
+                        recyclingScore = 30;
+                        break;
+                    case 'metpet':
+                        carbonScore = Math.round(annualProduction * 3.5);
+                        waterScore = Math.round(annualProduction * 15);
+                        wasteScore = Math.round(annualProduction * 0.95);
+                        recyclingScore = 25;
+                        break;
+                    case 'paperpe':
+                        carbonScore = Math.round(annualProduction * 1.6);
+                        waterScore = Math.round(annualProduction * 18);
+                        wasteScore = Math.round(annualProduction * 0.7);
+                        recyclingScore = 65;
+                        break;
+                    case 'bioplastic':
+                        carbonScore = Math.round(annualProduction * 1.8);
+                        waterScore = Math.round(annualProduction * 16);
+                        wasteScore = Math.round(annualProduction * 0.65);
+                        recyclingScore = 80;
+                        break;
+                    case 'aluminum':
+                        carbonScore = Math.round(annualProduction * 4.2);
+                        waterScore = Math.round(annualProduction * 20);
+                        wasteScore = Math.round(annualProduction * 1);
+                        recyclingScore = 20;
+                        break;
+                    case 'bopape':
+                        carbonScore = Math.round(annualProduction * 2.8);
+                        waterScore = Math.round(annualProduction * 13);
+                        wasteScore = Math.round(annualProduction * 0.85);
+                        recyclingScore = 40;
+                        break;
+                    default:
+                        carbonScore = Math.round(annualProduction * 2.5);
+                        waterScore = Math.round(annualProduction * 12.5);
+                        wasteScore = Math.round(annualProduction * 0.85);
+                        recyclingScore = 35;
+                }
+                
+                // Add transport emissions (simplified calculation)
+                carbonScore += Math.round(annualProduction * transportDistance * 0.0001);
+                
+                // Adjust based on end-of-life scenario
+                switch (endOfLife) {
+                    case 'recycle':
+                        carbonScore = Math.round(carbonScore * 0.8);
+                        wasteScore = Math.round(wasteScore * 0.6);
+                        break;
+                    case 'compost':
+                        if (material === 'bioplastic') {
+                            carbonScore = Math.round(carbonScore * 0.7);
+                            wasteScore = Math.round(wasteScore * 0.4);
+                        }
+                        break;
+                    case 'incineration':
+                        carbonScore = Math.round(carbonScore * 1.2);
+                        wasteScore = Math.round(wasteScore * 0.3);
+                        break;
+                    case 'landfill':
+                        carbonScore = Math.round(carbonScore * 1.1);
+                        wasteScore = Math.round(wasteScore * 1.1);
+                        break;
+                }
+                
+                // Update results in the UI
+                document.getElementById('carbonFootprint').innerHTML = `
+                    <h4 class="font-medium mb-2">Carbon Footprint</h4>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl font-bold">${carbonScore}</span>
+                        <span class="text-gray-600">tons CO2 eq./year</span>
+                        <span class="${carbonScore > 250 ? 'text-red-500' : 'text-green-500'} text-sm">
+                            ${carbonScore > 250 ? '+' : ''}${Math.round((carbonScore - 250) / 2.5)}% vs. industry avg.
+                        </span>
+                    </div>
+                    <div class="mt-2 h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full ${carbonScore > 250 ? 'bg-red-500' : 'bg-green-500'} rounded-full" style="width: ${Math.min(100, carbonScore / 4)}%"></div>
+                    </div>
+                `;
+                
+                document.getElementById('waterUsage').innerHTML = `
+                    <h4 class="font-medium mb-2">Water Usage</h4>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl font-bold">${waterScore}</span>
+                        <span class="text-gray-600">kL/year</span>
+                        <span class="${waterScore > 1300 ? 'text-red-500' : 'text-green-500'} text-sm">
+                            ${waterScore > 1300 ? '+' : ''}${Math.round((waterScore - 1300) / 13)}% vs. industry avg.
+                        </span>
+                    </div>
+                    <div class="mt-2 h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-blue-500 rounded-full" style="width: ${Math.min(100, waterScore / 25)}%"></div>
+                    </div>
+                `;
+                
+                document.getElementById('wasteGeneration').innerHTML = `
+                    <h4 class="font-medium mb-2">Waste Generation</h4>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl font-bold">${wasteScore}</span>
+                        <span class="text-gray-600">tons/year</span>
+                        <span class="${wasteScore > 85 ? 'text-red-500' : 'text-green-500'} text-sm">
+                            ${wasteScore > 85 ? '+' : ''}${Math.round((wasteScore - 85) / 0.85)}% vs. industry avg.
+                        </span>
+                    </div>
+                    <div class="mt-2 h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-yellow-500 rounded-full" style="width: ${Math.min(100, wasteScore / 1.6)}%"></div>
+                    </div>
+                `;
+                
+                document.getElementById('recyclingRate').innerHTML = `
+                    <h4 class="font-medium mb-2">Recyclability</h4>
+                    <div class="flex items-center space-x-3">
+                        <span class="text-2xl font-bold">${recyclingScore}%</span>
+                        <span class="text-gray-600">recovery rate</span>
+                        <span class="${recyclingScore < 45 ? 'text-red-500' : 'text-green-500'} text-sm">
+                            ${recyclingScore < 45 ? '' : '+'}${Math.round(recyclingScore - 45)}% vs. industry avg.
+                        </span>
+                    </div>
+                    <div class="mt-2 h-3 bg-gray-200 rounded-full overflow-hidden">
+                        <div class="h-full bg-green-500 rounded-full" style="width: ${recyclingScore}%"></div>
+                    </div>
+                `;
+                
+                // Hide loading indicator
+                document.getElementById('loading').style.display = 'none';
+            }, 1000);
+        }
+
+        function resetForm() {
+            document.getElementById('recommendationForm').reset();
+            document.getElementById('recommendations').innerHTML = `
+                <div class="p-8 text-center text-gray-500">
+                    <i class="bi bi-arrow-left-circle text-5xl mb-4 text-blue-300"></i>
+                    <p>Select your requirements on the left to get personalized material recommendations</p>
+                </div>
+            `;
+            document.getElementById('packagePreview').innerHTML = `
+                <div class="p-8 text-center text-gray-500 col-span-3">
+                    <i class="bi bi-box2 text-6xl mb-4 text-gray-300"></i>
+                    <p>Select a material recommendation to view package visualization</p>
+                </div>
+            `;
+            document.getElementById('sustainabilityAnalysis').innerHTML = `
+                <div class="p-8 text-center text-gray-500">
+                    <i class="bi bi-recycle text-6xl mb-4 text-gray-300"></i>
+                    <p>Select a material recommendation to view sustainability analysis</p>
+                </div>
+            `;
+        }
+
+        window.onclick = function(event) {
+            const sustainabilityModal = document.getElementById('sustainabilityModal');
+            const pouchGeneratorModal = document.getElementById('pouchGeneratorModal');
+            const authModal = document.getElementById('authModal');
+            
+            if (event.target === sustainabilityModal) {
+                sustainabilityModal.style.display = 'none';
+            }
+
+            if (event.target === document.getElementById('geminiModal')) {
+                document.querySelector('[x-data="app()"]').__x.$data.closeGeminiModal();
+            }
+
+            if (event.target === pouchGeneratorModal) {
+                document.querySelector('[x-data="app()"]').__x.$data.closePouchGeneratorModal();
+            }
+            
+            if (event.target === authModal) {
+                document.querySelector('[x-data="app()"]').__x.$data.showAuthModal = false;
+            }
+        };
+    </script>
+<script>document.body.addEventListener('wheel', e => { if (!e.ctrlKey) return; e.preventDefault(); return }, { passive: false })</script>
+	</body>
+</html>
